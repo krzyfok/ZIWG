@@ -1,0 +1,14 @@
+# Środowisko wirtualne
+.venv/
+venv/
+env/
+
+# Pliki skompilowane Pythona
+__pycache__/
+*.py[cod]
+
+# Zmienne środowiskowe (pamiętaj, by ich nie commitować!)
+.env
+
+# Bazy danych (jeśli będziesz używać SQLite)
+*.sqlite3
