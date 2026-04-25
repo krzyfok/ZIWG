@@ -26,8 +26,9 @@ pip install fastapi uvicorn
 
 # Start the backend server
 uvicorn main:app --reload
-The API will be available at: http://127.0.0.1:8000
 ```
+The API will be available at: http://127.0.0.1:8000
+
  2. Frontend (React + Vite)
 Open a second, separate terminal and run the following commands:
 
