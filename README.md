@@ -23,13 +23,15 @@ source .venv/bin/activate
 
 # Install required dependencies
 pip install fastapi uvicorn
+pip install sqlalchemy
 
 # Start the backend server
 uvicorn main:app --reload
 ```
 The API will be available at: http://127.0.0.1:8000
+To test API: http://127.0.0.1:8000/docs
 
- 2. Frontend (React + Vite)
+## 2. Frontend (React + Vite)
 Open a second, separate terminal and run the following commands:
 
 ```Bash
