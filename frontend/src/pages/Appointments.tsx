@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from '../components/Layout';
 import { api } from '../api/api';
 import type { Appointment } from '../types';
 
@@ -14,7 +13,7 @@ export const Appointments: React.FC = () => {
   const filteredAppointments = appointments.filter(a => a.status === activeTab);
 
   return (
-    <Layout title="Panel pacjenta - Twoje wizyty">
+    <>
       <div className="flex mb-4 border-b">
         <button 
           className={`px-6 py-2 font-medium ${activeTab === 'planned' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
@@ -72,6 +71,6 @@ export const Appointments: React.FC = () => {
           </tbody>
         </table>
       </div>
-    </Layout>
+    </>
   );
 };

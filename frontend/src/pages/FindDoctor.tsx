@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
 import { api } from '../api/api';
 import type { Doctor } from '../types';
 
@@ -15,7 +14,7 @@ export const FindDoctor: React.FC = () => {
   };
 
   return (
-    <Layout title="Znajdź lekarza">
+        <>
       <div className="bg-white p-6 border rounded-md shadow-sm mb-6">
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1">
@@ -62,6 +61,7 @@ export const FindDoctor: React.FC = () => {
           ))
         )}
       </div>
-    </Layout>
+</>
+   
   );
 };

@@ -1,12 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layout } from '../components/Layout';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Layout title="Panel pacjenta" showBack={false}>
+    
       <div className="flex flex-col sm:flex-row gap-6 mt-10 justify-center">
         <button 
           onClick={() => navigate('/appointments')}
@@ -21,6 +20,6 @@ export const Dashboard: React.FC = () => {
           Znajdź lekarza
         </button>
       </div>
-    </Layout>
+    
   );
 };
