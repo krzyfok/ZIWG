@@ -12,3 +12,5 @@ __pycache__/
 
 # Bazy danych (jeśli będziesz używać SQLite)
 *.sqlite3
+
+backend/database.db
