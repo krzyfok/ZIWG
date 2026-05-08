@@ -21,3 +21,8 @@ export interface Appointment {
   address: string;
   status: 'planned' | 'completed';
 }
+
+export interface Specialization {
+  id: string;
+  name: string;
+}

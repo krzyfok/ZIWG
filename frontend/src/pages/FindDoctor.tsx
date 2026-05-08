@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { doctorApi } from '../api';
-import type { Doctor } from '../types';
+import type { Doctor, Specialization } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 export const FindDoctor: React.FC = () => {
   const [specialization, setSpecialization] = useState('');
   const [city, setCity] = useState('');
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [specializationsList, setSpecializationsList] = useState<Specialization[]>([]);
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -26,6 +27,17 @@ export const FindDoctor: React.FC = () => {
 
     fetchAllDoctors();
   }, []);
+  useEffect(()=> {
+    const fetchSpecializations = async () =>{
+      try {
+        const results = await doctorApi.getSpecializations();
+        setSpecializationsList(results);
+      }catch (error) {
+        console.error("Błąd podczas pobierania specjalizacji", error);
+      }
+    };
+    fetchSpecializations();
+  }, []);
   
   return (
         <>
@@ -33,12 +45,19 @@ export const FindDoctor: React.FC = () => {
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4 items-end">
           <div className="flex-1">
             <label className="block text-sm text-gray-600 mb-1">Specjalizacja</label>
-            <input 
-              type="text" 
-              className="w-full border p-2 rounded" 
-              placeholder="np. Kardiolog"
-              value={specialization} onChange={e => setSpecialization(e.target.value)}
-            />
+            <select 
+              className="w-full border p-2 rounded bg-white" 
+              value={specialization} 
+              onChange={e => setSpecialization(e.target.value)}
+            >
+              <option value="">Wszystkie specjalizacje</option>
+              
+              {specializationsList.map((spec) => (
+                <option key={spec.id} value={spec.name}>
+                  {spec.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex-1">
             <label className="block text-sm text-gray-600 mb-1">Miasto</label>
