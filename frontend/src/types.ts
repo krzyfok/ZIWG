@@ -5,7 +5,8 @@ export interface User {
 
 export interface Doctor {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   specialization: string;
   city: string;
   imageUrl?: string;

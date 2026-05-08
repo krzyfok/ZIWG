@@ -144,30 +144,6 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
     return result
 
 
-@app.get("/doctors/{doctor_id}")
-def get_doctor_details(doctor_id: int, db: Session = Depends(get_db)):
-    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
-
-    if not doctor:
-        raise HTTPException(status_code=404, detail="Nie znaleziono lekarza")
-
-    specializations = []
-
-    for doctor_specialization in doctor.specializations:
-        specializations.append(doctor_specialization.specialization.name)
-
-    return {
-        "id": doctor.id,
-        "first_name": doctor.first_name,
-        "last_name": doctor.last_name,
-        "city": doctor.city,
-        "address": doctor.address,
-        "description": doctor.description,
-        "phone": doctor.phone,
-        "email": doctor.email,
-        "specializations": specializations
-    }
-
 @app.get("/doctors/search")
 def search_doctors(
     first_name: str | None = None,
@@ -212,6 +188,29 @@ def search_doctors(
         })
 
     return result
+@app.get("/doctors/{doctor_id}")
+def get_doctor_details(doctor_id: int, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Nie znaleziono lekarza")
+
+    specializations = []
+
+    for doctor_specialization in doctor.specializations:
+        specializations.append(doctor_specialization.specialization.name)
+
+    return {
+        "id": doctor.id,
+        "first_name": doctor.first_name,
+        "last_name": doctor.last_name,
+        "city": doctor.city,
+        "address": doctor.address,
+        "description": doctor.description,
+        "phone": doctor.phone,
+        "email": doctor.email,
+        "specializations": specializations
+    }
 
 @app.get("/doctors/{doctor_id}/availability")
 def get_doctor_availability(doctor_id: int, db: Session = Depends(get_db)):

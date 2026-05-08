@@ -3,7 +3,7 @@ import type { Doctor } from '../types';
 
 export const doctorApi = {
   searchDoctors: async (specialization: string, city: string): Promise<Doctor[]> => {
-    const { data } = await apiClient.get<Doctor[]>('/doctors', {
+    const { data } = await apiClient.get<Doctor[]>('/doctors/search', {
       params: { 
         spec: specialization, 
         city 
@@ -11,4 +11,9 @@ export const doctorApi = {
     });
     return data;
   },
+  getAllDoctors: async(): Promise<Doctor[]>=>{
+    const { data } = await apiClient.get<Doctor[]>('/doctors/search', {
+    });
+    return data;
+  }
 };

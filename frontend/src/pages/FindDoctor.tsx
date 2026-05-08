@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { doctorApi } from '../api';
 import type { Doctor } from '../types';
 
@@ -12,7 +12,21 @@ export const FindDoctor: React.FC = () => {
     const results = await doctorApi.searchDoctors(specialization, city);
     setDoctors(results);
   };
+  useEffect(() => {
+    const fetchAllDoctors = async () => {
+      try {
+        // Wywołujemy wyszukiwanie z pustymi parametrami, 
+        // co zazwyczaj na backendzie zwraca wszystkich rekordy
+        const results = await doctorApi.getAllDoctors();
+        setDoctors(results);
+      } catch (error) {
+        console.error("Błąd podczas pobierania lekarzy:", error);
+      }
+    };
 
+    fetchAllDoctors();
+  }, []);
+  
   return (
         <>
       <div className="bg-white p-6 border rounded-md shadow-sm mb-6">
@@ -50,7 +64,8 @@ export const FindDoctor: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0"></div> {/* Zdjęcie lekarza */}
                 <div>
-                  <h3 className="font-semibold text-lg">{doc.name}</h3>
+                  <h3 className="font-semibold text-lg">{doc.first_name}</h3>
+                  <h3 className="font-semibold text-lg">{doc.last_name}</h3>
                   <p className="text-gray-600">{doc.specialization} • {doc.city}</p>
                 </div>
               </div>

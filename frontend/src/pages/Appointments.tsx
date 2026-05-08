@@ -51,7 +51,8 @@ export const Appointments: React.FC = () => {
                   <td className="p-3">{app.time}</td>
                   <td className="p-3">{app.address}</td>
                   <td className="p-3">{app.doctor.specialization}</td>
-                  <td className="p-3">{app.doctor.name}</td>
+                  <td className="p-3">{app.doctor.first_name}</td>
+                  <td className="p-3">{app.doctor.last_name}</td>
                   <td className="p-3 flex gap-2">
                     {activeTab === 'planned' ? (
                       <>
