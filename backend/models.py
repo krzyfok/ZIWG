@@ -71,3 +71,37 @@ class Availability(Base):
         "Doctor",
         back_populates="availability"
     )
+    appointments = relationship(
+        "Appointment",
+        back_populates="availability"
+    )
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, nullable=False, unique=True)
+
+    appointments = relationship(
+        "Appointment",
+        back_populates="user"
+    )
+
+
+class Appointment(Base):
+    __tablename__ = "appointments"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    availability_id = Column(Integer, ForeignKey("availability.id"), nullable=False)
+
+    user = relationship(
+        "User",
+        back_populates="appointments"
+    )
+
+    availability = relationship(
+        "Availability",
+        back_populates="appointments"
+    )
