@@ -50,9 +50,12 @@ export const DoctorDetails: React.FC = () => {
         <p> {doctor.description}</p>
         <h2 className="text-xl font-semibold mb-4">Rezerwacja wizyty</h2>
         
-        <button className="mt-4 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full">
-          Potwierdź rezerwację
-        </button>
+        <button 
+            onClick={() => navigate(`/doctor/${id}/appointments`)}
+            className="mt-4 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 w-full"
+            >
+            Zarezerwuj
+            </button>
       </div>
     </div>
   );

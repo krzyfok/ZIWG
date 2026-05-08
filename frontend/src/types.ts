@@ -26,3 +26,12 @@ export interface Specialization {
   id: string;
   name: string;
 }
+
+export interface AppointmentSlot {
+  id: number;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  doctor_id: number;
+  date: string;
+}

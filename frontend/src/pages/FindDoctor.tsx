@@ -92,7 +92,7 @@ export const FindDoctor: React.FC = () => {
                 onClick={() => navigate(`/doctor/${doc.id}`)} 
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
-                Zarezerwuj wizytę
+                Szczegóły
               </button>
             </div>
           ))

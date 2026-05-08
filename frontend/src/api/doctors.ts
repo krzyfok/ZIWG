@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Doctor, Specialization } from '../types';
+import type { AppointmentSlot, Doctor, Specialization } from '../types';
 
 export const doctorApi = {
   searchDoctors: async (specialization: string, city: string): Promise<Doctor[]> => {
@@ -21,7 +21,8 @@ export const doctorApi = {
     return data;
   },
   getSpecializations: async():Promise<Specialization[]>=>{
-    const {data}= await apiClient.get<Specialization[]>(`/specializations `)
+    const {data}= await apiClient.get<Specialization[]>(`/specializations `);
     return data;
-  }
+  },
+  
 };

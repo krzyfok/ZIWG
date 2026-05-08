@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthPage } from './pages/AuthPage';
 import { Dashboard } from './pages/Dashboard';
@@ -8,6 +7,7 @@ import { Navbar } from './components/Navbar';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { DoctorDetails } from './pages/DoctorDetail';
+import { DoctorAppointments } from './pages/DoctorAppointments';
 function App() {
   return (
     <AuthProvider>
@@ -20,6 +20,7 @@ function App() {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/find-doctor" element={<FindDoctor />} />
           <Route path="/doctor/:id" element={<DoctorDetails />} />
+          <Route path="/doctor/:id/appointments" element={<DoctorAppointments />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>
