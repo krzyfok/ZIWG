@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../api/api';
+import { appointmentApi } from '../api';
 import type { Appointment } from '../types';
 
 export const Appointments: React.FC = () => {
@@ -7,7 +7,7 @@ export const Appointments: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
-    api.getAppointments().then(data => setAppointments(data));
+    appointmentApi.getAppointments().then(data => setAppointments(data));
   }, []);
 
   const filteredAppointments = appointments.filter(a => a.status === activeTab);

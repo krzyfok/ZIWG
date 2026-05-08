@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api/api';
+import { authApi } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // try {
-    //   if (isLogin) {
-    //     await api.login(email, password);
-    //   } else {
-    //     await api.register(email, password);
-    //   }
-    //   navigate('/dashboard');
-    // } catch (error) {
-    //   console.error("Błąd autoryzacji", error);
-    // }
-    navigate('/dashboard');
+    try {
+      if (isLogin) {
+        const userData = await authApi.login(username, password);
+        login(userData);
+        navigate('/dashboard');
+      } else {
+        //await api.register(email, password);
+      }
+    } catch (error) {
+      console.error("Błąd autoryzacji", error);
+    }
+   
   };
 
   return (
@@ -43,10 +46,10 @@ export const AuthPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input 
-            type="email" 
-            placeholder="Email" 
+            type="text" 
+            placeholder="Username" 
             className="border p-2 rounded"
-            value={email} onChange={e => setEmail(e.target.value)}
+            value={username} onChange={e => setUsername(e.target.value)}
           />
           <input 
             type="password" 

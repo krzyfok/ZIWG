@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { api } from '../api/api';
+import { doctorApi } from '../api';
 import type { Doctor } from '../types';
 
 export const FindDoctor: React.FC = () => {
@@ -9,7 +9,7 @@ export const FindDoctor: React.FC = () => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const results = await api.searchDoctors(specialization, city);
+    const results = await doctorApi.searchDoctors(specialization, city);
     setDoctors(results);
   };
 
