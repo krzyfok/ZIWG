@@ -64,9 +64,9 @@ export const FindDoctor: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0"></div> {/* Zdjęcie lekarza -???? jak?? */}
                 
-                  <h3 className="font-semibold text-lg">{doc.first_name} {doc.last_name}</h3>
-                  <h3 className="font-semibold text-lg">{doc.specialization}</h3> {/*dodac wyswietlanie specek*/} 
-                  <p className="text-gray-600">{doc.specialization} • {doc.city}</p>
+                  <h3 className="font-bold text-lg">{doc.first_name} {doc.last_name}</h3>
+                  <h3 className="text-lg">{doc.specializations.join(' ,')}</h3> 
+                  <p className="text-gray-600"> • {doc.city}</p>
              
               </div>
              <button 

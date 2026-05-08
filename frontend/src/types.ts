@@ -7,7 +7,7 @@ export interface Doctor {
   id: string;
   first_name: string;
   last_name: string;
-  specialization: string;
+  specializations: string[];
   city: string;
   imageUrl?: string;
   description : string
