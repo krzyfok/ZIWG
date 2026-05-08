@@ -15,5 +15,9 @@ export const doctorApi = {
     const { data } = await apiClient.get<Doctor[]>('/doctors/search', {
     });
     return data;
+  },
+  getDoctorById: async(id: string): Promise<Doctor>=>{
+    const { data } = await apiClient.get<Doctor>(`/doctors/${id}`);
+    return data;
   }
 };

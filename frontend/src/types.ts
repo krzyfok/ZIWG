@@ -10,6 +10,7 @@ export interface Doctor {
   specialization: string;
   city: string;
   imageUrl?: string;
+  description : string
 }
 
 export interface Appointment {

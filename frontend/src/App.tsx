@@ -7,7 +7,7 @@ import { FindDoctor } from './pages/FindDoctor';
 import { Navbar } from './components/Navbar';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-
+import { DoctorDetails } from './pages/DoctorDetail';
 function App() {
   return (
     <AuthProvider>
@@ -19,6 +19,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/find-doctor" element={<FindDoctor />} />
+          <Route path="/doctor/:id" element={<DoctorDetails />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { doctorApi } from '../api';
 import type { Doctor } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 export const FindDoctor: React.FC = () => {
   const [specialization, setSpecialization] = useState('');
   const [city, setCity] = useState('');
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +62,17 @@ export const FindDoctor: React.FC = () => {
           doctors.map(doc => (
             <div key={doc.id} className="bg-white p-4 border rounded shadow-sm flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0"></div> {/* Zdjęcie lekarza */}
-                <div>
-                  <h3 className="font-semibold text-lg">{doc.first_name}</h3>
-                  <h3 className="font-semibold text-lg">{doc.last_name}</h3>
+                <div className="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0"></div> {/* Zdjęcie lekarza -???? jak?? */}
+                
+                  <h3 className="font-semibold text-lg">{doc.first_name} {doc.last_name}</h3>
+                  <h3 className="font-semibold text-lg">{doc.specialization}</h3> {/*dodac wyswietlanie specek*/} 
                   <p className="text-gray-600">{doc.specialization} • {doc.city}</p>
-                </div>
+             
               </div>
-              <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+             <button 
+                onClick={() => navigate(`/doctor/${doc.id}`)} 
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
                 Zarezerwuj wizytę
               </button>
             </div>
