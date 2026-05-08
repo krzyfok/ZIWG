@@ -1,12 +1,16 @@
 import { apiClient } from './client';
-import type { AppointmentSlot } from '../types';
+import type { AppointmentSlot, Appointment } from '../types';
 
 export const appointmentApi = {
-  getAvailableSlots: async(id:string): Promise<AppointmentSlot[]>=>{
-    const {data} = await apiClient.get<AppointmentSlot[]>(`/doctors/${id}/availability`);
+  getAvailableSlots: async(doctor_id:string): Promise<AppointmentSlot[]>=>{
+    const {data} = await apiClient.get<AppointmentSlot[]>(`/doctors/${doctor_id}/availability`);
     return data;
   },
   bookAppointment: async (user_id: number, availability_id: number): Promise<void> => {
     await apiClient.post('/appointments', { user_id, availability_id});
+  },
+  getUserAppointments: async (user_id: number) : Promise<Appointment[]>=>{
+    const {data} = await apiClient.get<Appointment[]>(`users/${user_id}/appointments`);
+    return data;
   }
 };

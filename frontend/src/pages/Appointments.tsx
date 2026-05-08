@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { appointmentApi } from '../api';
-import type { Appointment } from '../types';
+import type { Appointment} from '../types';
+import { useAuth } from '../context/AuthContext';
 
 export const Appointments: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'planned' | 'completed'>('planned');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-
+  const { user } = useAuth();
+  const userId = user?.id;
   useEffect(() => {
-    appointmentApi.getAppointments().then(data => setAppointments(data));
+    appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
   }, []);
-
-  const filteredAppointments = appointments.filter(a => a.status === activeTab);
 
   return (
     <>
@@ -42,17 +42,15 @@ export const Appointments: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredAppointments.length === 0 ? (
+            {appointments.length === 0 ? (
               <tr><td colSpan={6} className="p-6 text-center text-gray-500">Brak wizyt w tej kategorii.</td></tr>
             ) : (
-              filteredAppointments.map(app => (
+              appointments.map(app => (
                 <tr key={app.id} className="border-b">
                   <td className="p-3">{app.date}</td>
-                  <td className="p-3">{app.time}</td>
-                  <td className="p-3">{app.address}</td>
-                  <td className="p-3">{app.doctor.specializations.join(' ,')}</td>
-                  <td className="p-3">{app.doctor.first_name}</td>
-                  <td className="p-3">{app.doctor.last_name}</td>
+                  <td className="p-3">{app.start_time}</td>
+                  <td className="p-3">{app.address}</td>    
+                  <td className="p-3">{app.doctor}</td>
                   <td className="p-3 flex gap-2">
                     {activeTab === 'planned' ? (
                       <>

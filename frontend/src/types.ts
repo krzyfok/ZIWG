@@ -13,15 +13,6 @@ export interface Doctor {
   description : string
 }
 
-export interface Appointment {
-  id: string;
-  doctor: Doctor;
-  date: string;
-  time: string;
-  address: string;
-  status: 'planned' | 'completed';
-}
-
 export interface Specialization {
   id: string;
   name: string;
@@ -34,4 +25,15 @@ export interface AppointmentSlot {
   is_available: boolean;
   doctor_id: number;
   date: string;
+  address?:string;
+}
+
+export interface Appointment {
+  id: number;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  doctor: string;
+  date: string;
+  address?:string;
 }
