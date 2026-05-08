@@ -15,8 +15,6 @@ export const FindDoctor: React.FC = () => {
   useEffect(() => {
     const fetchAllDoctors = async () => {
       try {
-        // Wywołujemy wyszukiwanie z pustymi parametrami, 
-        // co zazwyczaj na backendzie zwraca wszystkich rekordy
         const results = await doctorApi.getAllDoctors();
         setDoctors(results);
       } catch (error) {
