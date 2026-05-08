@@ -43,7 +43,9 @@ export const DoctorDetails: React.FC = () => {
          <div>
             <h1 className="text-2xl font-bold">{doctor.first_name} {doctor.last_name}</h1>
             <p className="text-lg text-gray-700">{doctor.specializations.join(' ,')}</p>
-            <p className="text-gray-500">{doctor.city}</p>
+            <p className="text-gray-500">{doctor.city} {doctor.address}</p>
+            <p className="text-gray-500">tel: {doctor.phone}</p>
+            <p className="text-gray-500"> email: {doctor.email}</p>
          </div>
       </div>
       <div className="border-t pt-1">

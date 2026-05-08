@@ -8,6 +8,7 @@ export const FindDoctor: React.FC = () => {
   const [city, setCity] = useState('');
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [specializationsList, setSpecializationsList] = useState<Specialization[]>([]);
+  const [citiesLsit, setCitiesList] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -38,6 +39,17 @@ export const FindDoctor: React.FC = () => {
     };
     fetchSpecializations();
   }, []);
+  useEffect(()=> {
+    const fetchCities = async () =>{
+      try {
+        const results = await doctorApi.getCities();
+        setCitiesList(results);
+      }catch (error) {
+        console.error("Błąd podczas pobierania miast", error);
+      }
+    };
+    fetchCities();
+  }, []);
   
   return (
         <>
@@ -61,12 +73,19 @@ export const FindDoctor: React.FC = () => {
           </div>
           <div className="flex-1">
             <label className="block text-sm text-gray-600 mb-1">Miasto</label>
-            <input 
-              type="text" 
-              className="w-full border p-2 rounded" 
-              placeholder="np. Warszawa"
-              value={city} onChange={e => setCity(e.target.value)}
-            />
+            <select 
+              className="w-full border p-2 rounded bg-white" 
+              value={city} 
+              onChange={e => setCity(e.target.value)}
+            >
+              <option value="">Wszystkie maista</option>
+              
+              {citiesLsit.map((spec) => (
+                <option key={spec} value={spec}>
+                  {spec}
+                </option>
+              ))}
+            </select>
           </div>
           <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 h-10">
             Szukaj

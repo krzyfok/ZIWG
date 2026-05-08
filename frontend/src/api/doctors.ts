@@ -24,5 +24,9 @@ export const doctorApi = {
     const {data}= await apiClient.get<Specialization[]>(`/specializations `);
     return data;
   },
+  getCities: async():Promise<string[]>=>{
+    const {data}= await apiClient.get<string[]>(`/cities `);
+    return data;
+  },
   
 };

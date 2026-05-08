@@ -10,7 +10,10 @@ export interface Doctor {
   specializations: string[];
   city: string;
   imageUrl?: string;
-  description : string
+  description : string;
+  email: string;
+  phone: number;
+  address: string;
 }
 
 export interface Specialization {
