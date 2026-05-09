@@ -4,7 +4,17 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
 from database import engine, SessionLocal
-from models import Base, Doctor, Specialization, DoctorSpecialization, Availability, User, Appointment
+from models import (
+    Base,
+    Doctor,
+    Specialization,
+    DoctorSpecialization,
+    Availability,
+    User,
+    UserCredential,
+    Appointment,
+)
+from auth import hash_password, verify_password
 
 Base.metadata.create_all(bind=engine)
 
@@ -27,6 +37,13 @@ def get_db():
 
 class LoginRequest(BaseModel):
     username: str
+    password: str
+
+
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+
 
 class AppointmentCreate(BaseModel):
     user_id: int
@@ -59,22 +76,54 @@ def get_cities(db: Session = Depends(get_db)):
 @app.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     username = data.username.strip()
+    password = data.password
 
     if not username:
-        raise HTTPException(status_code=400, detail="Nazwa użytkownika nie może być pusta")
+        raise HTTPException(
+            status_code=400, detail="Nazwa użytkownika nie może być pusta"
+        )
+
+    if not password:
+        raise HTTPException(status_code=400, detail="Hasło nie może być puste")
 
     user = db.query(User).filter(User.username == username).first()
+    user_credential = user.credential if user else None
+    if not user_credential or not verify_password(
+        password, user_credential.salt, user_credential.password_hash
+    ):
+        raise HTTPException(status_code=401, detail="Niepoprawne dane logowania")
 
-    if not user:
-        user = User(username=username)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
+    return {"id": user.id, "username": user.username}
 
-    return {
-        "id": user.id,
-        "username": user.username
-    }
+
+@app.post("/register")
+def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    username = data.username.strip()
+    password = data.password
+
+    if not username or not password:
+        raise HTTPException(
+            status_code=400, detail="Nazwa użytkownika i hasło są wymagane"
+        )
+
+    existing_user = db.query(User).filter(User.username == username).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400, detail="Użytkownik o takiej nazwie już istnieje"
+        )
+
+    user = User(username=username)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    salt, password_hash = hash_password(password)
+    credential = UserCredential(user_id=user.id, salt=salt, password_hash=password_hash)
+    db.add(credential)
+    db.commit()
+
+    return {"id": user.id, "username": user.username}
+
 
 @app.post("/appointments")
 def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):

@@ -87,6 +87,23 @@ class User(Base):
         back_populates="user"
     )
 
+    credential = relationship(
+        "UserCredential",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+
+class UserCredential(Base):
+    __tablename__ = "user_credentials"
+
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    password_hash = Column(String, nullable=False)
+    salt = Column(String, nullable=False)
+
+    user = relationship("User", back_populates="credential")
+
 
 class Appointment(Base):
     __tablename__ = "appointments"
