@@ -36,6 +36,7 @@ export interface Appointment {
   start_time: string;
   end_time: string;
   is_available: boolean;
+  doctor_id: number;
   doctor: string;
   date: string;
   address?:string;

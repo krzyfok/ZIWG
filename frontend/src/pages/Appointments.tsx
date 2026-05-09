@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { appointmentApi } from '../api';
-import type { Appointment} from '../types';
+import type { Appointment } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 export const Appointments: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'planned' | 'completed'>('planned');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { user } = useAuth();
@@ -70,7 +72,12 @@ export const Appointments: React.FC = () => {
                         >
                           Odwołaj
                         </button>
-                        <button className="px-3 py-1 border border-blue-500 text-blue-500 rounded text-sm hover:bg-blue-50">Zmień termin</button>
+                        <button 
+                          onClick={() => navigate(`/doctor/${app.doctor_id}/appointments?appointmentId=${app.id}`)}
+                          className="px-3 py-1 border border-blue-500 text-blue-500 rounded text-sm hover:bg-blue-50"
+                        >
+                          Zmień termin
+                        </button>
                       </>
                     ) : (
                       <>

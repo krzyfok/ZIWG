@@ -49,6 +49,9 @@ class AppointmentCreate(BaseModel):
     user_id: int
     availability_id: int
 
+class AppointmentReschedule(BaseModel):
+    availability_id: int
+
 @app.get("/")
 def read_root():
     return {"status": "Backend działa!", "technologia": "FastAPI"}
@@ -160,6 +163,36 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
         "appointment_id": appointment.id
     }
 
+@app.patch("/appointments/{appointment_id}/reschedule")
+def reschedule_appointment(appointment_id: int, data: AppointmentReschedule, db: Session = Depends(get_db)):
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wizyty")
+
+    old_availability = appointment.availability
+    new_availability = db.query(Availability).filter(Availability.id == data.availability_id).first()
+
+    if not new_availability:
+        raise HTTPException(status_code=404, detail="Nie znaleziono nowego terminu")
+
+    if not new_availability.is_available:
+        raise HTTPException(status_code=400, detail="Nowy termin jest już zajęty")
+
+    if new_availability.doctor_id != old_availability.doctor_id:
+        raise HTTPException(status_code=400, detail="Nowy termin musi należeć do tego samego lekarza")
+
+    old_availability.is_available = True
+    new_availability.is_available = False
+    appointment.availability_id = new_availability.id
+
+    db.commit()
+    db.refresh(appointment)
+
+    return {
+        "message": "Termin wizyty został zmieniony",
+        "appointment_id": appointment.id
+    }
+
 @app.get("/users/{user_id}/appointments")
 def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
     appointments = (
@@ -184,6 +217,7 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
             "date": availability.date,
             "start_time": availability.start_time,
             "end_time": availability.end_time,
+            "doctor_id": doctor.id,
             "doctor": f"{doctor.first_name} {doctor.last_name}",
             "city": doctor.city,
             "address": doctor.address,
