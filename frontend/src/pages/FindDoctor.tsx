@@ -78,7 +78,7 @@ export const FindDoctor: React.FC = () => {
               value={city} 
               onChange={e => setCity(e.target.value)}
             >
-              <option value="">Wszystkie maista</option>
+              <option value="">Wszystkie miasta</option>
               
               {citiesLsit.map((spec) => (
                 <option key={spec} value={spec}>
