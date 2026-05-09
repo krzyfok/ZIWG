@@ -180,7 +180,7 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
             specializations.append(doctor_specialization.specialization.name)
 
         result.append({
-            "appointment_id": appointment.id,
+            "id": appointment.id,
             "date": availability.date,
             "start_time": availability.start_time,
             "end_time": availability.end_time,
@@ -191,6 +191,22 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
         })
 
     return result
+
+
+@app.delete("/appointments/{appointment_id}")
+def cancel_appointment(appointment_id: int, db: Session = Depends(get_db)):
+    appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
+
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wizyty")
+
+    availability = appointment.availability
+    availability.is_available = True
+
+    db.delete(appointment)
+    db.commit()
+
+    return {"message": "Wizyta została anulowana"}
 
 
 @app.get("/doctors/search")

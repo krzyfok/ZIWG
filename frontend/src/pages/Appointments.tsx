@@ -12,6 +12,15 @@ export const Appointments: React.FC = () => {
     appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
   }, []);
 
+  const handleCancelAppointment = async (appointmentId: number) => {
+    try {
+      await appointmentApi.deleteAppointment(appointmentId);
+      setAppointments(appointments.filter(app => app.id !== appointmentId));
+    } catch (error) {
+      console.error('Błąd przy anulowaniu wizyty', error);
+    }
+  };
+
   return (
     <>
       <div className="flex mb-4 border-b">
@@ -54,7 +63,12 @@ export const Appointments: React.FC = () => {
                   <td className="p-3 flex gap-2">
                     {activeTab === 'planned' ? (
                       <>
-                        <button className="px-3 py-1 border border-red-500 text-red-500 rounded text-sm hover:bg-red-50">Odwołaj</button>
+                        <button 
+                          onClick={() => handleCancelAppointment(app.id)}
+                          className="px-3 py-1 border border-red-500 text-red-500 rounded text-sm hover:bg-red-50"
+                        >
+                          Odwołaj
+                        </button>
                         <button className="px-3 py-1 border border-blue-500 text-blue-500 rounded text-sm hover:bg-blue-50">Zmień termin</button>
                       </>
                     ) : (

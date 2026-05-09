@@ -12,5 +12,8 @@ export const appointmentApi = {
   getUserAppointments: async (user_id: number) : Promise<Appointment[]>=>{
     const {data} = await apiClient.get<Appointment[]>(`users/${user_id}/appointments`);
     return data;
+  },
+  deleteAppointment: async (appointment_id: number): Promise<void> => {
+    await apiClient.delete(`/appointments/${appointment_id}`);
   }
 };
