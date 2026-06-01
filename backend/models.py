@@ -7,7 +7,10 @@ from database import Base
 class Doctor(Base):
     __tablename__ = "doctors"
 
+    
+
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=True)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     city = Column(String, nullable=False)
@@ -16,6 +19,11 @@ class Doctor(Base):
     phone = Column(String, nullable=True)
     email = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+
+    user_account = relationship(
+        "User",
+        back_populates="doctor_profile"
+    )
 
     specializations = relationship(
         "DoctorSpecialization",
@@ -81,6 +89,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)
+    role = Column(String, default="patient", nullable=False)
 
     appointments = relationship(
         "Appointment",
@@ -92,6 +101,13 @@ class User(Base):
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan",
+    )
+
+
+    doctor_profile = relationship(
+        "Doctor",
+        back_populates="user_account",
+        uselist=False
     )
 
 

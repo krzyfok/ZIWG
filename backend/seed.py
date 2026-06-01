@@ -1,8 +1,8 @@
 from datetime import date, time
 
 from database import SessionLocal, engine
-from models import Base, Doctor, Specialization, DoctorSpecialization, Availability
-
+from models import Base, Doctor, Specialization, DoctorSpecialization, Availability, User, UserCredential
+from auth import hash_password
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,10 +22,30 @@ def seed_database():
         orthopedics = Specialization(name="Ortopeda")
         pediatrics = Specialization(name="Pediatra")
 
+        
         db.add_all([cardiology, dermatology, orthopedics, pediatrics])
         db.commit()
 
+        salt, hashed_pw = hash_password("lekarz123")
+
+        user1 = User(username="akowalska", role="doctor")
+        user2 = User(username="jnowak", role="doctor")
+        user3 = User(username="mwisniewska", role="doctor")
+        user4 = User(username="pzielinski", role="doctor")
+
+        db.add_all([user1, user2, user3, user4])
+        db.commit()
+
+        db.add_all([
+            UserCredential(user_id=user1.id, password_hash=hashed_pw, salt=salt),
+            UserCredential(user_id=user2.id, password_hash=hashed_pw, salt=salt),
+            UserCredential(user_id=user3.id, password_hash=hashed_pw, salt=salt),
+            UserCredential(user_id=user4.id, password_hash=hashed_pw, salt=salt),
+        ])
+        db.commit()
+
         doctor1 = Doctor(
+            user_id=user1.id,
             first_name="Anna",
             last_name="Kowalska",
             city="Gdańsk",
@@ -36,6 +56,7 @@ def seed_database():
         )
 
         doctor2 = Doctor(
+            user_id=user2.id,
             first_name="Jan",
             last_name="Nowak",
             city="Wrocław",
@@ -46,6 +67,7 @@ def seed_database():
         )
 
         doctor3 = Doctor(
+            user_id=user3.id,
             first_name="Maria",
             last_name="Wiśniewska",
             city="Gdynia",
@@ -56,6 +78,7 @@ def seed_database():
         )
 
         doctor4 = Doctor(
+            user_id=user4.id,
             first_name="Piotr",
             last_name="Zieliński",
             city="Wrocław",
