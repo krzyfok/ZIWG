@@ -139,7 +139,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.add(credential)
     db.commit()
 
-    return {"id": user.id, "username": user.username}
+    return {"id": user.id, "username": user.username, "role": user.role}
 
 
 @app.post("/appointments")
@@ -364,7 +364,7 @@ def update_doctor_profile(user_id: int, data: DoctorUpdate, db: Session = Depend
     doctor.email = data.email
     
     db.commit()
-    
+
 @app.get("/doctors/me/{user_id}/availability")
 def get_my_availability(user_id: int, db: Session = Depends(get_db)):
     doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()

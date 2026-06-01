@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { doctorApi, appointmentApi } from '../api';
+import { appointmentApi } from '../api';
 import type { AppointmentSlot } from '../types';
 import { useAuth } from '../context/AuthContext';
 
