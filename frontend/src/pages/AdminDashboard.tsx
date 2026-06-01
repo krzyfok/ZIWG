@@ -9,6 +9,7 @@ export const AdminDashboard: React.FC = () => {
       <button 
        
         className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm flex flex-col items-center justify-center text-xl font-medium transition-colors"
+        onClick={() => navigate('/doctor-appointment')}
       >
         <span>Twój grafik przyjęć</span>
       </button>
@@ -17,7 +18,7 @@ export const AdminDashboard: React.FC = () => {
     
 
         className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm flex flex-col items-center justify-center text-xl font-medium transition-colors"
-      onClick={() => navigate('/edit-profile')}
+        onClick={() => navigate('/edit-profile')}
       >
         Edytuj profil
       </button>

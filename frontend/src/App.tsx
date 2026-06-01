@@ -11,7 +11,7 @@ import { DoctorDetails } from './pages/DoctorDetail';
 import { DoctorAppointments } from './pages/DoctorAppointments';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { EditDoctorProfile } from './pages/EditDoctorProfile';
-
+import { AdminDoctorAppointments } from './pages/AdminDoctorAppointments';
 function App() {
   return (
     <AuthProvider>
@@ -32,6 +32,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/edit-profile" element={<EditDoctorProfile />} />
+              <Route path="/doctor-appointment" element={<AdminDoctorAppointments />}/>
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" />} />

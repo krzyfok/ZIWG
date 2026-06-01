@@ -12,7 +12,7 @@ export interface Doctor {
   imageUrl?: string;
   description : string;
   email: string;
-  phone: number;
+  phone: string;
   address: string;
 }
 
@@ -40,4 +40,28 @@ export interface Appointment {
   doctor: string;
   date: string;
   address?:string;
+}
+
+export interface DoctorUpdate {
+  first_name: string;
+  last_name: string;
+  city: string;
+  address: string;
+  description?: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface Availability {
+  id: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+}
+
+export interface AvailabilityCreate {
+  date: string;
+  start_time: string;
+  end_time: string;
 }

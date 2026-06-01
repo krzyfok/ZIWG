@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { doctorProfile } from '../api/doctorProfile'; 
 
 export const EditDoctorProfile: React.FC = () => {
   const { user } = useAuth();
@@ -18,45 +19,42 @@ export const EditDoctorProfile: React.FC = () => {
   });
 
   useEffect(() => {
-    if (user?.id) {
-      fetch(`http://127.0.0.1:8000/doctors/me/${user.id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (!data.detail) {
-            setFormData({
-              first_name: data.first_name || '',
-              last_name: data.last_name || '',
-              city: data.city || '',
-              address: data.address || '',
-              description: data.description || '',
-              phone: data.phone || '',
-              email: data.email || ''
-            });
-          }
-        })
-        .catch(err => console.error("Błąd pobierania danych", err));
-    }
-  }, [user]);
+    const loadProfile = async () => {
+      if (user?.id) {
+        try {
+          const data = await doctorProfile.getMyProfile(user.id);
+          setFormData({
+            first_name: data.first_name || '',
+            last_name: data.last_name || '',
+            city: data.city || '',
+            address: data.address || '',
+            description: data.description || '',
+            phone: data.phone || '',
+            email: data.email || ''
+          });
+        } catch (error) {
+          console.error("Błąd pobierania danych", error);
+        }
+      }
+    };
 
+    loadProfile();
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) return;
+
     try {
-      const response = await fetch(`http://127.0.0.1:8000/doctors/me/${user?.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      await doctorProfile.updateMyProfile(user.id, formData);
       
-      if (response.ok) {
-        setMessage('Zapisano zmiany!');
-        setTimeout(() => navigate('/admin-dashboard'), 2000); 
-      }
+      setMessage('Zapisano zmiany!');
+      setTimeout(() => navigate('/admin-dashboard'), 2000); 
+      
     } catch (error) {
       console.error("Błąd zapisu", error);
       setMessage('Wystąpił błąd podczas zapisywania.');

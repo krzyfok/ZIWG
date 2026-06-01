@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-
+from datetime import date, time
 from database import engine, SessionLocal
 from models import (
     Base,
@@ -60,6 +60,11 @@ class DoctorUpdate(BaseModel):
     description: str | None = None
     phone: str | None = None
     email: str | None = None
+
+class AvailabilityCreate(BaseModel):
+    date: date
+    start_time: time
+    end_time: time
 
 @app.get("/")
 def read_root():
@@ -360,4 +365,48 @@ def update_doctor_profile(user_id: int, data: DoctorUpdate, db: Session = Depend
     
     db.commit()
     
+@app.get("/doctors/me/{user_id}/availability")
+def get_my_availability(user_id: int, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+    
+    availabilities = (
+        db.query(Availability)
+        .filter(Availability.doctor_id == doctor.id)
+        .order_by(Availability.date, Availability.start_time)
+        .all()
+    )
+    return availabilities
+
+@app.post("/doctors/me/{user_id}/availability")
+def create_availability(user_id: int, data: AvailabilityCreate, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+    
+    new_slot = Availability(
+        doctor_id=doctor.id,
+        date=data.date,
+        start_time=data.start_time,
+        end_time=data.end_time,
+        is_available=True
+    )
+    
+    db.add(new_slot)
+    db.commit()
+    db.refresh(new_slot)
+    
+    return {"message": "Dodano nowy termin", "id": new_slot.id}
+
+@app.delete("/availability/{availability_id}")
+def delete_availability(availability_id: int, db: Session = Depends(get_db)):
+    slot = db.query(Availability).filter(Availability.id == availability_id).first()
+    if not slot:
+        raise HTTPException(status_code=404, detail="Nie znaleziono terminu")
+    
+    db.delete(slot)
+    db.commit()
+    
+    return {"message": "Termin usunięty pomyślnie"}
     return {"message": "Profil został pomyślnie zaktualizowany!"}

@@ -60,15 +60,20 @@ export const DoctorAppointments: React.FC = () => {
     }
   };
 
-  const handleBooking = async (slotId: number) => {
-    try {
-      await appointmentApi.bookAppointment(userId, slotId);
-      alert('Wizyta została pomyślnie zarezerwowana!');
-      navigate('/appointments');
-    } catch (error) {
-      alert('Wystąpił błąd przy rezerwacji terminu. Proszę spróbować ponownie.');
-    }
-  };
+const handleBooking = async (slotId: number) => {
+  if (!userId) {
+    alert("Błąd: Nie znaleziono danych użytkownika. Zaloguj się ponownie.");
+    return;
+  }
+
+  try {
+    await appointmentApi.bookAppointment(userId, slotId);
+    alert('Wizyta została pomyślnie zarezerwowana!');
+    navigate('/appointments');
+  } catch (error) {
+    alert('Wystąpił błąd przy rezerwacji terminu. Proszę spróbować ponownie.');
+  }
+};
 
   if (loading) return <div className="text-center py-10">Ładowanie wolnych terminów...</div>;
 
