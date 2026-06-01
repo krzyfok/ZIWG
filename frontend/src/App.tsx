@@ -9,6 +9,8 @@ import { Layout } from './components/Layout';
 import { Navbar } from './components/Navbar';
 import { DoctorDetails } from './pages/DoctorDetail';
 import { DoctorAppointments } from './pages/DoctorAppointments';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { EditDoctorProfile } from './pages/EditDoctorProfile';
 
 function App() {
   return (
@@ -17,13 +19,19 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<AuthPage />} />
-          <Route element={<ProtectedRoute />}>
+          <Route element={<ProtectedRoute allowedRoles={['patient']} />}>
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/find-doctor" element={<FindDoctor />} />
               <Route path="/doctor/:id" element={<DoctorDetails />} />
               <Route path="/doctor/:id/appointments" element={<DoctorAppointments />} />
+            </Route>
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
+            <Route element={<Layout />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/edit-profile" element={<EditDoctorProfile />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" />} />

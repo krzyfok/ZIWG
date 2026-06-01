@@ -52,6 +52,15 @@ class AppointmentCreate(BaseModel):
 class AppointmentReschedule(BaseModel):
     availability_id: int
 
+class DoctorUpdate(BaseModel):
+    first_name: str
+    last_name: str
+    city: str
+    address: str
+    description: str | None = None
+    phone: str | None = None
+    email: str | None = None
+
 @app.get("/")
 def read_root():
     return {"status": "Backend działa!", "technologia": "FastAPI"}
@@ -96,7 +105,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     ):
         raise HTTPException(status_code=401, detail="Niepoprawne dane logowania")
 
-    return {"id": user.id, "username": user.username}
+    return {"id": user.id, "username": user.username, "role": user.role}
 
 
 @app.post("/register")
@@ -323,3 +332,32 @@ def get_doctor_availability(doctor_id: int, db: Session = Depends(get_db)):
     )
 
     return availability
+
+
+@app.get("/doctors/me/{user_id}")
+def get_my_doctor_profile(user_id: int, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+        
+    return doctor
+
+@app.put("/doctors/me/{user_id}")
+def update_doctor_profile(user_id: int, data: DoctorUpdate, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+    
+    doctor.first_name = data.first_name
+    doctor.last_name = data.last_name
+    doctor.city = data.city
+    doctor.address = data.address
+    doctor.description = data.description
+    doctor.phone = data.phone
+    doctor.email = data.email
+    
+    db.commit()
+    
+    return {"message": "Profil został pomyślnie zaktualizowany!"}
