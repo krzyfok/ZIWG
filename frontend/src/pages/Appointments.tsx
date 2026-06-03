@@ -10,11 +10,16 @@ export const Appointments: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
-  useEffect(() => {
+ 
+  const fetchAppointments = () => {
     if (userId) {
       appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
     }
+  };
+   useEffect(() => {
+   fetchAppointments();
   }, [userId]);
+
 
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
@@ -23,6 +28,7 @@ export const Appointments: React.FC = () => {
     } catch (error) {
       console.error('Błąd przy anulowaniu wizyty', error);
     }
+    fetchAppointments();
   };
 
   const filteredAppointments = appointments.filter(app => {
