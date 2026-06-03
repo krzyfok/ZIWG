@@ -11,9 +11,8 @@ export const DoctorAppointmentSummary: React.FC = () => {
   const [appointment, setAppointment] = useState<DoctorAppointmentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [status, setStatus] = useState(appointment?.status || '');
-  const [notes, setNotes] = useState(appointment?.medical_notes || '');
   const [message, setMessage] = useState('');
+  const isReadOnly = appointment?.status !== 'scheduled';
   useEffect(() => {
     const loadAppointment = async () => {
       if (!id) {
@@ -44,10 +43,9 @@ export const DoctorAppointmentSummary: React.FC = () => {
    const handleUpdate = async (e: React.FormEvent) => {
       e.preventDefault();
       
-      if (!user?.id) return;
-  
+      if (!user?.id || !appointment) return;
       try {
-        await adminApi.updateAppointment(user.id, Number(id), status, notes);
+        await adminApi.updateAppointment(user.id, Number(id), appointment.status, appointment.medical_notes);
         
         setMessage('Zapisano zmiany!');
         
@@ -115,8 +113,9 @@ export const DoctorAppointmentSummary: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Status wizyty</label>
             <select 
               className="w-full border p-2 rounded bg-white focus:outline-none focus:border-blue-500 cursor-pointer"
-              value={status} 
-              onChange={(e) => setStatus(e.target.value)}
+              value={appointment.status} 
+              disabled={isReadOnly}
+              onChange={(e) => setAppointment({...appointment, status: e.target.value as 'scheduled' | 'completed' | 'cancelled' | 'no_show'})}
             >
               <option value="scheduled">Zaplanowana</option>
               <option value="completed">Zakończona</option>
@@ -133,27 +132,30 @@ export const DoctorAppointmentSummary: React.FC = () => {
           <textarea 
             className="w-full border p-3 rounded focus:outline-none focus:border-blue-500 min-h-[150px] resize-y"
             placeholder="Wprowadź przebieg wizyty..."
-            value={notes} 
-            onChange={(e) => setNotes(e.target.value)}
+            value={appointment?.medical_notes || ''} 
+            onChange={(e) => setAppointment({...appointment, medical_notes: e.target.value})}
+            disabled={isReadOnly}
           ></textarea>
         </div>
 
         <div className="flex justify-end gap-3 mt-4 pt-4 border-t">
           <button 
             type="button" 
-            onClick={() => navigate('/doctor-dashboard')} 
+            onClick={() => navigate('/doctor-dashboard/appointments')} 
             className="px-4 py-2 border text-gray-600 rounded hover:bg-gray-50 transition-colors"
           >
-            Anuluj
+            {isReadOnly ? 'Wróć' : 'Anuluj'}
           </button>
           
-          <button 
-            type="button" 
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
-            onClick={handleUpdate}
-          >
-            Zapisz podsumowanie
+          {!isReadOnly && (
+            <button 
+              type="button" 
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
+              onClick={handleUpdate}
+            >
+              Zapisz podsumowanie
           </button>
+          )}
         </div>
         
       </div>

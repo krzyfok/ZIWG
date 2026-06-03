@@ -86,7 +86,10 @@ export const DoctorAppointments: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">
+                        <button 
+                            className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50"
+                            onClick={() => navigate(`/doctor-dashboard/appointments/${app.id}/summary`)}
+                        >
                            Szczegóły
                         </button>
                       </>
