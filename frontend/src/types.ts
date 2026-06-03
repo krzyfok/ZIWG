@@ -62,6 +62,7 @@ export interface Appointment {
   status: AppointmentStatus;
   specializations: string[];
 }
+
 export type AppointmentStatus =
   | 'scheduled'
   | 'completed'

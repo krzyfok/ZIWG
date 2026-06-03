@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { appointmentApi } from '../api';
 import type { Appointment } from '../types';
 import { useAuth } from '../context/AuthContext';
-
+import {type AppointmentStatus } from '../types';
 export const Appointments: React.FC = () => {
-  type TabType = 'planned' | 'completed' | 'cancelled' | 'no_show';
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabType>('planned');
+  const [activeTab, setActiveTab] = useState<AppointmentStatus>('scheduled');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
@@ -33,7 +32,7 @@ export const Appointments: React.FC = () => {
   };
 
   const filteredAppointments = appointments.filter(app => {
-    if (activeTab === 'planned') return app.status === 'scheduled';
+    if (activeTab === 'scheduled') return app.status === 'scheduled';
     if (activeTab === 'completed') return app.status === 'completed'
     if (activeTab === 'cancelled') return app.status === 'cancelled'; 
     if (activeTab === 'no_show') return app.status === 'no_show';
@@ -44,8 +43,8 @@ export const Appointments: React.FC = () => {
     <>
       <div className="flex mb-4 border-b">
         <button 
-          className={`px-6 py-2 font-medium ${activeTab === 'planned' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('planned')}
+          className={`px-6 py-2 font-medium ${activeTab === 'scheduled' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab('scheduled')}
         >
           Zaplanowane wizyty
         </button>
@@ -93,7 +92,7 @@ export const Appointments: React.FC = () => {
                   <td className="p-3">{app.specializations}</td>  
                   <td className="p-3">{app.doctor}</td>
                   <td className="p-3 flex gap-2">
-                    {activeTab === 'planned' ? (
+                    {activeTab === 'scheduled' ? (
                       <>
                         <button 
                           onClick={() => handleCancelAppointment(app.id)}

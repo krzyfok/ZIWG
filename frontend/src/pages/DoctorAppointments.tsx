@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { adminApi } from '../api';
-import type { DoctorAppointmentDetails } from '../types';
+import type { AppointmentStatus, DoctorAppointmentDetails } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const DoctorAppointments: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'planned' | 'completed' | 'cancelled'>('planned');
+  const [activeTab, setActiveTab] = useState<AppointmentStatus>('scheduled');
   const [appointments, setAppointments] = useState<DoctorAppointmentDetails[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
@@ -22,9 +22,10 @@ export const DoctorAppointments: React.FC = () => {
 
 
   const filteredAppointments = appointments.filter(app => {
-    if (activeTab === 'planned') return app.status === 'scheduled';
-    if (activeTab === 'completed') return app.status === 'completed' || app.status === 'no_show';
+    if (activeTab === 'scheduled') return app.status === 'scheduled';
+    if (activeTab === 'completed') return app.status === 'completed';
     if (activeTab === 'cancelled') return app.status === 'cancelled'; 
+    if (activeTab === 'no_show') return app.status === 'no_show';
     return true; 
   });
 
@@ -32,8 +33,8 @@ export const DoctorAppointments: React.FC = () => {
     <>
       <div className="flex mb-4 border-b">
         <button 
-          className={`px-6 py-2 font-medium ${activeTab === 'planned' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
-          onClick={() => setActiveTab('planned')}
+          className={`px-6 py-2 font-medium ${activeTab === 'scheduled' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab('scheduled')}
         >
           Zaplanowane wizyty
         </button>
@@ -48,6 +49,12 @@ export const DoctorAppointments: React.FC = () => {
           onClick={() => setActiveTab('cancelled')}
         >
           Anulowane wizyty
+        </button>
+        <button 
+          className={`px-6 py-2 font-medium ${activeTab === 'no_show' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab('no_show')}
+        >
+          Niezrealizowane wizyty
         </button>
       </div>
 
@@ -73,7 +80,7 @@ export const DoctorAppointments: React.FC = () => {
                   <td className="p-3">{app.patient_name}</td>
                   <td className="p-3">{app.patient_phone}</td>
                   <td className="p-3 flex gap-2">
-                    {activeTab === 'planned' ? (
+                    {activeTab === 'scheduled' ? (
                       <>
                         <button 
                         
