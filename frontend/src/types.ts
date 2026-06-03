@@ -32,6 +32,8 @@ export interface Doctor {
   email: string;
   phone: string;
   address: string;
+  average_rating?: number;
+  reviews_count?: number;
 }
 
 export interface Specialization {
@@ -61,6 +63,7 @@ export interface Appointment {
   address?:string;
   status: AppointmentStatus;
   specializations: string[];
+  rating?: number;
 }
 
 export type AppointmentStatus =

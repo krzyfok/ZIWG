@@ -18,5 +18,8 @@ export const appointmentApi = {
   },
   rescheduleAppointment: async (appointment_id: number, availability_id: number): Promise<void> => {
     await apiClient.patch(`/appointments/${appointment_id}/reschedule`, { availability_id });
+  },
+  rateAppointment: async (appointment_id: number, rating: number): Promise<void> => {
+    await apiClient.post(`/appointments/${appointment_id}/rate`, { rating });
   }
 };

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date, time
 from database import engine, SessionLocal
 from models import (
@@ -75,6 +75,9 @@ class AvailabilityCreate(BaseModel):
 class AppointmentUpdate(BaseModel):
     status: str
     medical_notes: Optional[str] = None
+
+class RatingUpdate(BaseModel):
+    rating: int = Field(ge=1, le=5, description="Ocena w skali od 1 do 5")
 
 @app.get("/")
 def read_root():
@@ -194,6 +197,52 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
         "appointment_id": appointment.id
     }
 
+@app.post("/appointments/{appointment_id}/rate")
+def rate_appointment(
+    appointment_id: int, 
+    data: RatingUpdate, 
+    db: Session = Depends(get_db)
+):
+    appointment = (
+        db.query(Appointment)
+        .filter(Appointment.id == appointment_id)
+        .first()
+    )
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wizyty.")
+        
+    if appointment.status != "completed":
+        raise HTTPException(status_code=400, detail="Można oceniać tylko zakończone wizyty.")
+        
+    if appointment.rating is not None:
+        raise HTTPException(status_code=400, detail="Ta wizyta została już oceniona.")
+
+    doctor = appointment.availability.doctor
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Nie znaleziono lekarza dla tej wizyty.")
+
+    appointment.rating = data.rating
+    doctor.reviews_count += 1
+    
+    if doctor.reviews_count == 1:
+        doctor.average_rating = float(data.rating)
+    else:
+        old_votes = doctor.reviews_count - 1
+        total_stars = (doctor.average_rating * old_votes) + data.rating
+        doctor.average_rating = round(total_stars / doctor.reviews_count, 2)
+
+    db.commit()
+    db.refresh(appointment)
+
+    return {
+        "message": "Dziękujemy! Twoja ocena została zapisana.",
+        "new_average": doctor.average_rating,
+        "total_reviews": doctor.reviews_count
+    }
+
+
 @app.patch("/appointments/{appointment_id}/reschedule")
 def reschedule_appointment(appointment_id: int, data: AppointmentReschedule, db: Session = Depends(get_db)):
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
@@ -253,7 +302,9 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
             "city": doctor.city,
             "address": doctor.address,
             "specializations": specializations,
-            "status": appointment.status
+            "status": appointment.status,
+            "rating": appointment.rating
+            
         })
 
     return result
@@ -316,7 +367,9 @@ def search_doctors(
             "city": doctor.city,
             "address": doctor.address,
             "description": doctor.description,
-            "specializations": specializations
+            "specializations": specializations,
+            "average_rating": doctor.average_rating,
+            "reviews_count": doctor.reviews_count
         })
 
     return result

@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum, DateTime, func, Float, CheckConstraint
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -25,6 +25,8 @@ class Doctor(Base):
     phone = Column(String, nullable=True)
     email = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    average_rating = Column(Float, default=0.0)
+    reviews_count = Column(Integer, default=0)
 
     user_account = relationship(
         "User",
@@ -144,7 +146,10 @@ class Appointment(Base):
     
     medical_notes = Column(Text, nullable=True)
     updated_at = Column(DateTime(timezone=True), nullable=True, onupdate=func.now())
-
+    rating = Column(Integer, nullable=True)
+    __table_args__ = (
+        CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
+    )
     user = relationship(
         "User",
         back_populates="appointments"

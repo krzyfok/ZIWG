@@ -4,13 +4,15 @@ import { appointmentApi } from '../api';
 import type { Appointment } from '../types';
 import { useAuth } from '../context/AuthContext';
 import {type AppointmentStatus } from '../types';
+import { StarRating } from '../components/StartRating';
 export const Appointments: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<AppointmentStatus>('scheduled');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
- 
+  const [ratingMode, setRatingMode] = useState<number | null>(null);
+  const [currentRating, setCurrentRating] = useState<number>(0);
   const fetchAppointments = () => {
     if (userId) {
       appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
@@ -29,6 +31,20 @@ export const Appointments: React.FC = () => {
       console.error('Błąd przy anulowaniu wizyty', error);
     }
     fetchAppointments();
+  };
+
+  const handleRateAppointment = async (appointmentId: number) => {
+    if (currentRating === 0) return; // Zapobiega wysłaniu pustej oceny
+
+    try {
+      await appointmentApi.rateAppointment(appointmentId, currentRating);
+      fetchAppointments(); 
+ 
+      setRatingMode(null);
+      setCurrentRating(0);
+    } catch (error) {
+      console.error('Błąd przy zapisywaniu oceny', error);
+    }
   };
 
   const filteredAppointments = appointments.filter(app => {
@@ -109,11 +125,53 @@ export const Appointments: React.FC = () => {
                       </>
                     ) : activeTab === 'completed' ? (
                       <>
-                        <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">Oceń wizytę</button>
-                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Umów ponownie</button>
+                        {ratingMode === app.id ? (
+                          <div className="flex items-center gap-2 bg-gray-50 p-1 rounded border">
+                            <StarRating 
+                               value={currentRating} 
+                               onChange={setCurrentRating} 
+                            />
+                            <button 
+                              onClick={() => handleRateAppointment(app.id)}
+                              className="px-2 py-1 bg-green-500 text-white rounded text-xs"
+                            >
+                              Zapisz
+                            </button>
+                            <button 
+                              onClick={() => setRatingMode(null)}
+                              className="px-2 py-1 text-gray-500 hover:bg-gray-200 rounded text-xs"
+                            >
+                              Anuluj
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            {app.rating ? (
+                              <div className="mr-2">
+                                <StarRating value={app.rating} onChange={() => {}} readOnly />
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => {
+                                  setRatingMode(app.id);
+                                  setCurrentRating(0);
+                                }}
+                                className="px-3 py-1 border border-yellow-500 text-yellow-600 rounded text-sm hover:bg-yellow-50"
+                              >
+                                Oceń wizytę
+                              </button>
+                            )}
+                            
+                            <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                              Umów ponownie
+                            </button>
+                          </>
+                        )}
                       </>
-                    ): (
-                      <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">Brak dostępnych działań</button>
+                    ) : (
+                      <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">
+                        Brak dostępnych działań
+                      </button>
                     )}
                   </td>
                 </tr>

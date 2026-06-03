@@ -105,6 +105,9 @@ export const FindDoctor: React.FC = () => {
                   <h3 className="font-bold text-lg">{doc.first_name} {doc.last_name}</h3>
                   <h3 className="text-lg">{doc.specializations.join(' ,')}</h3> 
                   <p className="text-gray-600"> • {doc.city}</p>
+                  <p className="text-yellow-500">
+                    {doc.average_rating ? `⭐ ${doc.average_rating.toFixed(1)}` : 'Brak ocen'}
+                  </p>
              
               </div>
              <button 
