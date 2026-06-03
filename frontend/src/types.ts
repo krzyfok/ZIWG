@@ -64,6 +64,7 @@ export interface Appointment {
   status: AppointmentStatus;
   specializations: string[];
   rating?: number;
+  medical_notes?: string;
 }
 
 export type AppointmentStatus =

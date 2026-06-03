@@ -303,7 +303,8 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
             "address": doctor.address,
             "specializations": specializations,
             "status": appointment.status,
-            "rating": appointment.rating
+            "rating": appointment.rating,
+            "medical_notes": appointment.medical_notes
             
         })
 

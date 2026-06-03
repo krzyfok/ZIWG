@@ -13,6 +13,7 @@ export const Appointments: React.FC = () => {
   const userId = user?.id;
   const [ratingMode, setRatingMode] = useState<number | null>(null);
   const [currentRating, setCurrentRating] = useState<number>(0);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const fetchAppointments = () => {
     if (userId) {
       appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
@@ -34,7 +35,7 @@ export const Appointments: React.FC = () => {
   };
 
   const handleRateAppointment = async (appointmentId: number) => {
-    if (currentRating === 0) return; // Zapobiega wysłaniu pustej oceny
+    if (currentRating === 0) return;
 
     try {
       await appointmentApi.rateAppointment(appointmentId, currentRating);
@@ -83,7 +84,47 @@ export const Appointments: React.FC = () => {
           Niezrealizowane wizyty
         </button>
       </div>
+      {selectedAppointment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
+            
+            {/* Nagłówek okienka */}
+            <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Zalecenia z wizyty
+              </h3>
+              <button 
+                onClick={() => setSelectedAppointment(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none"
+              >
+                &times;
+              </button>
+            </div>
 
+            <div className="p-6 overflow-y-auto max-h-[70vh]">
+              <div className="text-gray-800 whitespace-pre-wrap leading-relaxed text-base">
+                {selectedAppointment.medical_notes 
+                  ? selectedAppointment.medical_notes 
+                  : <span className="text-gray-500 italic">Lekarz nie dodał jeszcze żadnych zaleceń do tej wizyty.</span>
+                }
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t bg-gray-50 flex justify-end">
+              <button 
+                onClick={() => setSelectedAppointment(null)}
+                className="px-6 py-2 bg-gray-600 text-white font-medium rounded hover:bg-gray-700 transition-colors"
+              >
+                Zamknij
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
       <div className="bg-white border rounded-md shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-gray-100 border-b">
@@ -93,7 +134,7 @@ export const Appointments: React.FC = () => {
               <th className="p-3">Adres</th>
               <th className="p-3">Specjalizacja</th>
               <th className="p-3">Lekarz</th>
-              <th className="p-3">Akcje</th>
+              <th className="p-3 text-center">Akcje</th>
             </tr>
           </thead>
           <tbody>
@@ -162,9 +203,12 @@ export const Appointments: React.FC = () => {
                               </button>
                             )}
                             
-                            <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                              Umów ponownie
+                            <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            onClick={() => setSelectedAppointment(app)}
+                            >
+                              Wyśwetl notatki
                             </button>
+                            
                           </>
                         )}
                       </>
