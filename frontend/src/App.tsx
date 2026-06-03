@@ -9,9 +9,9 @@ import { Layout } from './components/Layout';
 import { Navbar } from './components/Navbar';
 import { DoctorDetails } from './pages/DoctorDetail';
 import { DoctorAppointments } from './pages/DoctorAppointments';
-import { AdminDashboard } from './pages/AdminDashboard';
+import { DoctorDashboard } from './pages/DoctorDashboard';
 import { EditDoctorProfile } from './pages/EditDoctorProfile';
-import { AdminDoctorAppointments } from './pages/AdminDoctorAppointments';
+import {EditDoctorAppointments} from './pages/EditDoctorAppointments';
 function App() {
   return (
     <AuthProvider>
@@ -30,9 +30,9 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route element={<Layout />}>
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
               <Route path="/edit-profile" element={<EditDoctorProfile />} />
-              <Route path="/doctor-appointment" element={<AdminDoctorAppointments />}/>
+              <Route path="/manage-appointments" element={<EditDoctorAppointments />}/>
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" />} />

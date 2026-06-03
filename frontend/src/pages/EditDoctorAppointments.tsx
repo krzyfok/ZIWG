@@ -10,7 +10,7 @@ interface Availability {
   is_available: boolean;
 }
 
-export const AdminDoctorAppointments: React.FC = () => {
+export const EditDoctorAppointments: React.FC = () => {
   const { user } = useAuth();
   const [availabilities, setAvailabilities] = useState<Availability[]>([]);
   const [formData, setFormData] = useState({

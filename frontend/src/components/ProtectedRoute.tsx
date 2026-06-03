@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     if (user.role === 'doctor') {
-      return <Navigate to="/admin-dashboard" replace />;
+      return <Navigate to="/doctor-dashboard" replace />;
     } else {
       return <Navigate to="/dashboard" replace />;
     }

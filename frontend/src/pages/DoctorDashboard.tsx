@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const AdminDashboard: React.FC = () => {
+export const DoctorDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   return (
@@ -9,9 +9,9 @@ export const AdminDashboard: React.FC = () => {
       <button 
        
         className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm flex flex-col items-center justify-center text-xl font-medium transition-colors"
-        onClick={() => navigate('/doctor-appointment')}
+        onClick={() => navigate('/manage-appointments')}
       >
-        <span>Twój grafik przyjęć</span>
+        <span>Edytuj grafik</span>
       </button>
       
       <button 

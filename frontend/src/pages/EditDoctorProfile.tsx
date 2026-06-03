@@ -53,7 +53,7 @@ export const EditDoctorProfile: React.FC = () => {
       await doctorProfile.updateMyProfile(user.id, formData);
       
       setMessage('Zapisano zmiany!');
-      setTimeout(() => navigate('/admin-dashboard'), 2000); 
+      setTimeout(() => navigate('/doctor-dashboard'), 2000); 
       
     } catch (error) {
       console.error("Błąd zapisu", error);
@@ -86,7 +86,7 @@ export const EditDoctorProfile: React.FC = () => {
         <textarea className="border p-2 rounded w-full h-32" name="description" value={formData.description} onChange={handleChange} placeholder="O mnie / Opis doświadczenia" />
 
         <div className="flex justify-end gap-4 mt-4">
-          <button type="button" onClick={() => navigate('/admin-dashboard')} className="px-4 py-2 text-gray-500 hover:text-gray-700">Anuluj</button>
+          <button type="button" onClick={() => navigate('/doctor-dashboard')} className="px-4 py-2 text-gray-500 hover:text-gray-700">Anuluj</button>
           <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Zapisz profil</button>
         </div>
       </form>
