@@ -95,6 +95,11 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)
+    name = Column(String, nullable=False)
+    surname = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    address = Column(String, nullable=False)
+
     role = Column(String, default="patient", nullable=False)
 
     appointments = relationship(

@@ -43,6 +43,10 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(BaseModel):
     username: str
+    name: str
+    surname: str
+    phone: str
+    address: str
     password: str
 
 
@@ -130,7 +134,13 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
             status_code=400, detail="Użytkownik o takiej nazwie już istnieje"
         )
 
-    user = User(username=username)
+    user = User(
+        username=username,
+        name=data.name,
+        surname=data.surname,
+        phone=data.phone,
+        address=data.address
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -342,6 +352,39 @@ def get_doctor_availability(doctor_id: int, db: Session = Depends(get_db)):
 
     return availability
 
+@app.get("/doctors/me/{user_id}/appointments")
+def get_doctor_appointments(user_id: int, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+
+    appointments = (
+        db.query(Appointment)
+        .join(Availability)
+        .filter(Availability.doctor_id == doctor.id)
+        .order_by(Availability.date, Availability.start_time)
+        .all()
+    )
+
+    result = []
+    
+    for appointment in appointments:
+        availability = appointment.availability
+        patient = appointment.user  
+        
+        result.append({
+            "id": appointment.id,
+            "status": appointment.status,
+            "medical_notes": appointment.medical_notes,
+            "date": availability.date,
+            "start_time": availability.start_time,
+            "end_time": availability.end_time,
+            "patient_id": patient.id,
+            "patient_username": patient.username, 
+        })
+
+    return result
 
 @app.get("/doctors/me/{user_id}")
 def get_my_doctor_profile(user_id: int, db: Session = Depends(get_db)):

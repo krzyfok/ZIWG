@@ -1,10 +1,28 @@
 export interface User {
-  id: string;
+  id: number;
   username: string;
+  name: string;
+  surname: string;
+  phone_number: string;
+  address: string;
+  role: 'patient' | 'doctor'; 
+}
+
+export interface RegisterData {
+  username: string;
+  password: string;
+  name: string;
+  surname: string;
+  phone: string;
+  address: string;
+}
+export interface loginData {
+  username: string;
+  password: string;
 }
 
 export interface Doctor {
-  id: string;
+  id: number;
   first_name: string;
   last_name: string;
   specializations: string[];
@@ -17,8 +35,9 @@ export interface Doctor {
 }
 
 export interface Specialization {
-  id: string;
+  id: number;
   name: string;
+  
 }
 
 export interface AppointmentSlot {

@@ -8,6 +8,11 @@ export const AuthPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
   const [errorMsg, setErrorMsg] = useState<string>('');
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -25,9 +30,9 @@ export const AuthPage: React.FC = () => {
       let userData;
 
       if (isLogin) {
-        userData = await authApi.login(username, password);
+        userData = await authApi.login({username, password});
       } else {
-        userData = await authApi.register(username, password);
+        userData = await authApi.register({username, password, name, surname, phone, address});
       }
 
       login(userData);
@@ -71,26 +76,76 @@ export const AuthPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <input 
-            type="text" 
-            placeholder="Username" 
-            className="border p-2 rounded"
-            value={username} onChange={e => setUsername(e.target.value)}
-          />
-          <input 
-            type="password" 
-            placeholder="Hasło" 
-            className="border p-2 rounded"
-            value={password} onChange={e => setPassword(e.target.value)}
-          />
+          
           {!isLogin && (
+            <>
+             <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Imię</label>
+                <input 
+                  type="text" 
+                  className="border p-2 rounded focus:outline-none focus:border-blue-500" 
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Nazwisko</label>
+                <input 
+                  type="text" 
+                  className="border p-2 rounded focus:outline-none focus:border-blue-500" 
+                  value={surname}
+                  onChange={e => setSurname(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Numer telefonu</label>
+                <input 
+                  type="text" 
+                  className="border p-2 rounded focus:outline-none focus:border-blue-500" 
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Adres</label>
+                <input 
+                  type="text" 
+                  className="border p-2 rounded focus:outline-none focus:border-blue-500" 
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+          
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Nazwa użytkownika</label>
+            <input 
+              type="text" 
+              className="border p-2 rounded focus:outline-none focus:border-blue-500"
+              value={username} onChange={e => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Hasło</label>
             <input 
               type="password" 
-              placeholder="Powtórz hasło" 
-              className="border p-2 rounded" 
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
+              className="border p-2 rounded focus:outline-none focus:border-blue-500"
+              value={password} onChange={e => setPassword(e.target.value)}
             />
+          </div>
+           {!isLogin && (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-gray-700">Powtórz hasło</label>
+                <input 
+                  type="password"
+                  className="border p-2 rounded focus:outline-none focus:border-blue-500"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                />
+              </div>
+            </>
           )}
           {errorMsg && (
             <div style={{ color: 'red', marginBottom: '10px' }}>

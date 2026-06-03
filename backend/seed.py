@@ -27,13 +27,53 @@ def seed_database():
         db.commit()
 
         salt, hashed_pw = hash_password("lekarz123")
+        salt1, hashed_pw1 = hash_password("a")
 
-        user1 = User(username="akowalska", role="doctor")
-        user2 = User(username="jnowak", role="doctor")
-        user3 = User(username="mwisniewska", role="doctor")
-        user4 = User(username="pzielinski", role="doctor")
+        user1 = User(
+            username="akowalska", 
+            name="Anna", 
+            surname="Kowalska", 
+            phone="123456789", 
+            address="ul. Długa 10, Gdańsk",
+            role="doctor"
+        )
+        
+        user2 = User(
+            username="jnowak", 
+            name="Jan", 
+            surname="Nowak", 
+            phone="987654321", 
+            address="ul. Grunwaldzka 25, Wrocław",
+            role="doctor"
+        )
+        
+        user3 = User(
+            username="mwisniewska", 
+            name="Maria", 
+            surname="Wiśniewska", 
+            phone="555333222", 
+            address="ul. Morska 5, Gdynia",
+            role="doctor"
+        )
+        
+        user4 = User(
+            username="pzielinski", 
+            name="Piotr", 
+            surname="Zieliński", 
+            phone="111222333", 
+            address="ul. Monte Cassino 15, Wrocław",
+            role="doctor"
+        )
+        user5 = User(
+            username="a", 
+            name="Ewa", 
+            surname="Nowak", 
+            phone="111222333", 
+            address="ul. Monte Cassino 15, Wrocław",
+            role="patient"
+        )
 
-        db.add_all([user1, user2, user3, user4])
+        db.add_all([user1, user2, user3, user4, user5])
         db.commit()
 
         db.add_all([
@@ -41,6 +81,7 @@ def seed_database():
             UserCredential(user_id=user2.id, password_hash=hashed_pw, salt=salt),
             UserCredential(user_id=user3.id, password_hash=hashed_pw, salt=salt),
             UserCredential(user_id=user4.id, password_hash=hashed_pw, salt=salt),
+            UserCredential(user_id=user5.id, password_hash=hashed_pw1, salt=salt1),
         ])
         db.commit()
 

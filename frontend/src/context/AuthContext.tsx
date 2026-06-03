@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-
-export interface User {
-  id: number;
-  username: string;
-  role: 'patient' | 'doctor'; 
-}
+import  type{ User } from '../types';
 
 interface AuthContextType {
   user: User | null;

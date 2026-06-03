@@ -1,14 +1,14 @@
 import { apiClient } from './client';
-import type { User } from '../types';
+import type { User, RegisterData, loginData } from '../types';
 
 export const authApi = {
-  login: async (username: string, password: string): Promise<User> => {
-    const { data } = await apiClient.post<User>('/login', { username, password });
+  login: async (loginData: loginData) => {
+    const { data } = await apiClient.post<User>('/login', loginData);
     return data;
   },
 
-  register: async (username: string, password: string): Promise<User> => {
-    const { data } = await apiClient.post<User>('/register', { username, password });
+  register: async (registerData: RegisterData) => {
+    const { data } = await apiClient.post<User>('/register', registerData);
     return data;
   }
 };
