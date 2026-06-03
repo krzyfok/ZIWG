@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum, DateTime, func
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -143,6 +143,7 @@ class Appointment(Base):
     status = Column(Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED, nullable=False)
     
     medical_notes = Column(Text, nullable=True)
+    updated_at = Column(DateTime(timezone=True), nullable=True, onupdate=func.now())
 
     user = relationship(
         "User",

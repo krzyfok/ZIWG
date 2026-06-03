@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { adminApi } from '../api';
-import type { DoctorAppointmentDetails } from '../types';
+import type { DoctorAppointmentDetails,AppointmentStatus } from '../types';
 
 export const DoctorAppointmentSummary: React.FC = () => {
   const { user } = useAuth();
@@ -12,43 +12,47 @@ export const DoctorAppointmentSummary: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const isReadOnly = appointment?.status !== 'scheduled';
-  useEffect(() => {
-    const loadAppointment = async () => {
-      if (!id) {
-        setError('Nieprawidłowy identyfikator wizyty.');
-        setLoading(false);
-        return;
-      }
+  const isReadOnly = appointment ? appointment.status !== 'scheduled' : false;
 
-      if (!user?.id) {
-        return;
-      }
+  const [status, setStatus] = useState<AppointmentStatus>('scheduled');
+  const [notes, setNotes] = useState('');
 
-      console.log('Pobieranie danych wizyty o ID:', id);
-      try {
-        const data = await adminApi.getSingleAppointment(user.id, Number(id));
-        setAppointment(data);
-      } catch (err) {
-        console.error('Błąd pobierania danych wizyty', err);
-        setError('Nie udało się załadować danych wizyty.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadAppointment = useCallback(async () => {
+    if (!id) {
+      setError('Nieprawidłowy identyfikator wizyty.');
+      setLoading(false);
+      return;
+    }
 
-    loadAppointment();
-  }, [user, id]);
+    if (!user?.id) return;
+
+    try {
+      setLoading(true); 
+      const data = await adminApi.getSingleAppointment(user.id, Number(id));
+      setAppointment(data);
+      setStatus(data.status); 
+      setNotes(data.medical_notes || '');
+    } catch (err) {
+      console.error('Błąd pobierania danych wizyty', err);
+      setError('Nie udało się załadować danych wizyty.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, user?.id]); 
+
+    useEffect(() => {
+        loadAppointment();
+  }, [loadAppointment]);
 
    const handleUpdate = async (e: React.FormEvent) => {
       e.preventDefault();
       
       if (!user?.id || !appointment) return;
       try {
-        await adminApi.updateAppointment(user.id, Number(id), appointment.status, appointment.medical_notes);
+        await adminApi.updateAppointment(user.id, Number(id), status, notes);
         
         setMessage('Zapisano zmiany!');
-        
+        await loadAppointment();
       } catch (error) {
         console.error("Błąd zapisu", error);
         setMessage('Wystąpił błąd podczas zapisywania.');
@@ -113,9 +117,9 @@ export const DoctorAppointmentSummary: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Status wizyty</label>
             <select 
               className="w-full border p-2 rounded bg-white focus:outline-none focus:border-blue-500 cursor-pointer"
-              value={appointment.status} 
+              value={status} 
               disabled={isReadOnly}
-              onChange={(e) => setAppointment({...appointment, status: e.target.value as 'scheduled' | 'completed' | 'cancelled' | 'no_show'})}
+              onChange={(e) => setStatus(e.target.value as AppointmentStatus)}
             >
               <option value="scheduled">Zaplanowana</option>
               <option value="completed">Zakończona</option>
@@ -132,8 +136,8 @@ export const DoctorAppointmentSummary: React.FC = () => {
           <textarea 
             className="w-full border p-3 rounded focus:outline-none focus:border-blue-500 min-h-[150px] resize-y"
             placeholder="Wprowadź przebieg wizyty..."
-            value={appointment?.medical_notes || ''} 
-            onChange={(e) => setAppointment({...appointment, medical_notes: e.target.value})}
+            value={notes} 
+            onChange={(e) => setNotes(e.target.value)}
             disabled={isReadOnly}
           ></textarea>
         </div>

@@ -536,7 +536,7 @@ def update_doctor_appointment(
 
     if data.status == "cancelled" and appointment.availability:
         appointment.availability.is_available = True
-
+    
     db.commit()
     db.refresh(appointment)
 

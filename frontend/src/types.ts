@@ -59,17 +59,21 @@ export interface Appointment {
   doctor: string;
   date: string;
   address?:string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  status: AppointmentStatus;
   specializations: string[];
 }
-
+export type AppointmentStatus =
+  | 'scheduled'
+  | 'completed'
+  | 'cancelled'
+  | 'no_show';
 export interface DoctorAppointmentDetails {
   id: number;
   start_time: string;
   end_time: string;
   date: string;
   patient_address:string;
-  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  status: AppointmentStatus;
   patient_name: string;
   patient_phone: number;
   medical_notes: string;
