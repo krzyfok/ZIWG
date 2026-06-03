@@ -16,6 +16,7 @@ from models import (
     AppointmentStatus
 )
 from auth import hash_password, verify_password
+from typing import Optional
 
 Base.metadata.create_all(bind=engine)
 
@@ -70,6 +71,10 @@ class AvailabilityCreate(BaseModel):
     date: date
     start_time: time
     end_time: time
+
+class AppointmentUpdate(BaseModel):
+    status: str
+    medical_notes: Optional[str] = None
 
 @app.get("/")
 def read_root():
@@ -389,6 +394,44 @@ def get_doctor_appointments(user_id: int, db: Session = Depends(get_db)):
 
     return result
 
+@app.get("/doctors/me/{user_id}/appointments/{appointment_id}")
+def get_single_doctor_appointment(user_id: int, appointment_id: int, db: Session = Depends(get_db)):
+
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+
+    appointment = (
+        db.query(Appointment)
+        .join(Availability)
+        .filter(
+            Appointment.id == appointment_id,
+            Availability.doctor_id == doctor.id  # Zabezpieczenie przed podglądaniem cudzych wizyt
+        )
+        .first()
+    )
+
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wizyty")
+
+
+    availability = appointment.availability
+    patient = appointment.user  
+
+    return {
+        "id": appointment.id,
+        "status": appointment.status,
+        "medical_notes": appointment.medical_notes,
+        "date": availability.date,
+        "start_time": availability.start_time,
+        "end_time": availability.end_time,
+        "patient_id": patient.id,
+        "patient_name": f"{patient.name} {patient.surname}",
+        "patient_phone": patient.phone, 
+        "patient_address": patient.address,
+    }
+
 @app.get("/doctors/me/{user_id}")
 def get_my_doctor_profile(user_id: int, db: Session = Depends(get_db)):
     doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
@@ -460,3 +503,41 @@ def delete_availability(availability_id: int, db: Session = Depends(get_db)):
     
     return {"message": "Termin usunięty pomyślnie"}
     return {"message": "Profil został pomyślnie zaktualizowany!"}
+
+
+@app.put("/doctors/me/{user_id}/appointments/{appointment_id}")
+def update_doctor_appointment(
+    user_id: int, 
+    appointment_id: int, 
+    data: AppointmentUpdate, 
+    db: Session = Depends(get_db)
+):
+    doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+
+    appointment = (
+        db.query(Appointment)
+        .join(Availability)
+        .filter(
+            Appointment.id == appointment_id,
+            Availability.doctor_id == doctor.id
+        )
+        .first()
+    )
+
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wizyty")
+    appointment.status = data.status
+    
+    if data.medical_notes is not None:
+        appointment.medical_notes = data.medical_notes
+
+    if data.status == "cancelled" and appointment.availability:
+        appointment.availability.is_available = True
+
+    db.commit()
+    db.refresh(appointment)
+
+    return {"message": "Podsumowanie wizyty zostało zapisane pomyślnie"}

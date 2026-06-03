@@ -32,5 +32,14 @@ export const adminApi = {
   getMyAppointments: async (userId: number): Promise<DoctorAppointmentDetails[]> => {
     const { data } = await apiClient.get<DoctorAppointmentDetails[]>(`/doctors/me/${userId}/appointments`);
     return data;
+  },
+  getSingleAppointment: async (userId: number, appointmentId: number): Promise<DoctorAppointmentDetails> => {
+    const { data } = await apiClient.get<DoctorAppointmentDetails>(`/doctors/me/${userId}/appointments/${appointmentId}`);
+    return data;
+  },
+  updateAppointment: async (userId: number, appointmentId: number, status: string, medical_notes?: string): Promise<{ message: string }> => {
+    const { data } = await apiClient.put<{ message: string }>(`/doctors/me/${userId}/appointments/${appointmentId}`, { status, medical_notes });
+    return data;
   }
+
 };

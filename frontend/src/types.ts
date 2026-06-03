@@ -68,10 +68,11 @@ export interface DoctorAppointmentDetails {
   start_time: string;
   end_time: string;
   date: string;
-  address?:string;
+  patient_address:string;
   status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
   patient_name: string;
   patient_phone: number;
+  medical_notes: string;
 }
 
 export interface DoctorUpdate {

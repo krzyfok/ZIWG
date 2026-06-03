@@ -35,7 +35,7 @@ export const DoctorDashboard: React.FC = () => {
       
 
           className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm text-xl font-medium transition-colors"
-          onClick={() => navigate('/doctor-dashboard/edit-profile')}
+         
         >
           Następna wizyta
         </button>

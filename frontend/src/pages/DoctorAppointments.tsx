@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { adminApi } from '../api';
 import type { DoctorAppointmentDetails } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const DoctorAppointments: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'planned' | 'completed' | 'cancelled'>('planned');
   const [appointments, setAppointments] = useState<DoctorAppointmentDetails[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
- 
+  const navigate = useNavigate();
   const fetchAppointments = () => {
     if (userId) {
       adminApi.getMyAppointments(userId).then(data => setAppointments(data));
@@ -71,13 +72,25 @@ export const DoctorAppointments: React.FC = () => {
                   <td className="p-3">{app.start_time}</td>
                   <td className="p-3">{app.patient_name}</td>
                   <td className="p-3">{app.patient_phone}</td>
-                  <td className="p-3 flex gap-2">    
-                    <button 
-                    
-                        className="px-3 py-1 border border-blue-500 text-blue-500 rounded text-sm hover:bg-blue-50"
-                    >
-                        Dodaj notatkę
-                    </button>      
+                  <td className="p-3 flex gap-2">
+                    {activeTab === 'planned' ? (
+                      <>
+                        <button 
+                        
+                          className="px-3 py-1 border border-blue-500 text-blue-500 rounded text-sm hover:bg-blue-50"
+                          onClick={() => navigate(`/doctor-dashboard/appointments/${app.id}/summary`)}
+                        >
+                          Podsumuj wizytę
+
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">
+                           Szczegóły
+                        </button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))
