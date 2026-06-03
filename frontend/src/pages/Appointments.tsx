@@ -5,8 +5,9 @@ import type { Appointment } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 export const Appointments: React.FC = () => {
+  type TabType = 'planned' | 'completed' | 'cancelled' | 'no_show';
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'planned' | 'completed' | 'cancelled'>('planned');
+  const [activeTab, setActiveTab] = useState<TabType>('planned');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { user } = useAuth();
   const userId = user?.id;
@@ -33,8 +34,9 @@ export const Appointments: React.FC = () => {
 
   const filteredAppointments = appointments.filter(app => {
     if (activeTab === 'planned') return app.status === 'scheduled';
-    if (activeTab === 'completed') return app.status === 'completed' || app.status === 'no_show';
+    if (activeTab === 'completed') return app.status === 'completed'
     if (activeTab === 'cancelled') return app.status === 'cancelled'; 
+    if (activeTab === 'no_show') return app.status === 'no_show';
     return true; 
   });
 
@@ -58,6 +60,12 @@ export const Appointments: React.FC = () => {
           onClick={() => setActiveTab('cancelled')}
         >
           Anulowane wizyty
+        </button>
+        <button 
+          className={`px-6 py-2 font-medium ${activeTab === 'no_show' ? 'border-b-2 border-blue-600' : 'text-gray-500'}`}
+          onClick={() => setActiveTab('no_show')}
+        >
+          Niezrealizowane wizyty
         </button>
       </div>
 
@@ -100,11 +108,13 @@ export const Appointments: React.FC = () => {
                           Zmień termin
                         </button>
                       </>
-                    ) : (
+                    ) : activeTab === 'completed' ? (
                       <>
                         <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">Oceń wizytę</button>
                         <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Umów ponownie</button>
                       </>
+                    ): (
+                      <button className="px-3 py-1 border border-gray-400 rounded text-sm hover:bg-gray-50">Brak dostępnych działań</button>
                     )}
                   </td>
                 </tr>
