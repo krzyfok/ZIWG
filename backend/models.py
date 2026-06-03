@@ -1,8 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey
+import enum
+from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum
 from sqlalchemy.orm import relationship
 
 from database import Base
 
+class AppointmentStatus(str, enum.Enum):
+    SCHEDULED = "scheduled"       
+    COMPLETED = "completed"       
+    CANCELLED = "cancelled"       
+    NO_SHOW = "no_show"           
 
 class Doctor(Base):
     __tablename__ = "doctors"
@@ -128,6 +134,10 @@ class Appointment(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     availability_id = Column(Integer, ForeignKey("availability.id"), nullable=False)
+
+    status = Column(Enum(AppointmentStatus), default=AppointmentStatus.SCHEDULED, nullable=False)
+    
+    medical_notes = Column(Text, nullable=True)
 
     user = relationship(
         "User",

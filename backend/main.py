@@ -13,6 +13,7 @@ from models import (
     User,
     UserCredential,
     Appointment,
+    AppointmentStatus
 )
 from auth import hash_password, verify_password
 
@@ -163,7 +164,8 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
 
     appointment = Appointment(
         user_id=data.user_id,
-        availability_id=data.availability_id
+        availability_id=data.availability_id,
+        status=AppointmentStatus.SCHEDULED
     )
 
     availability.is_available = False

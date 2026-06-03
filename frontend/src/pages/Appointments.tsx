@@ -11,8 +11,10 @@ export const Appointments: React.FC = () => {
   const { user } = useAuth();
   const userId = user?.id;
   useEffect(() => {
-    appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
-  }, []);
+    if (userId) {
+      appointmentApi.getUserAppointments(userId).then(data => setAppointments(data));
+    }
+  }, [userId]);
 
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
