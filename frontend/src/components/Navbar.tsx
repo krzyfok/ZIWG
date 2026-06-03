@@ -34,6 +34,9 @@ export function Navbar() {
         )}
         {isAuthenticated && user?.role == "doctor" &&(
           <div className="flex items-center space-x-4">
+            <NavLink to="/doctor-dashboard/appointments" className={navLinkClass}>
+              Wyświetl wizyty
+            </NavLink>
             <NavLink to="/doctor-dashboard/availability" className={navLinkClass}>
               Edytuj grafik
             </NavLink>
