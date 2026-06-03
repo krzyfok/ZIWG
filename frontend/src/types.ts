@@ -40,6 +40,7 @@ export interface Appointment {
   doctor: string;
   date: string;
   address?:string;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
 }
 
 export interface DoctorUpdate {

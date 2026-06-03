@@ -237,13 +237,14 @@ def get_user_appointments(user_id: int, db: Session = Depends(get_db)):
             "doctor": f"{doctor.first_name} {doctor.last_name}",
             "city": doctor.city,
             "address": doctor.address,
-            "specializations": specializations
+            "specializations": specializations,
+            "status": appointment.status
         })
 
     return result
 
 
-@app.delete("/appointments/{appointment_id}")
+@app.patch("/appointments/{appointment_id}")
 def cancel_appointment(appointment_id: int, db: Session = Depends(get_db)):
     appointment = db.query(Appointment).filter(Appointment.id == appointment_id).first()
 
@@ -253,8 +254,9 @@ def cancel_appointment(appointment_id: int, db: Session = Depends(get_db)):
     availability = appointment.availability
     availability.is_available = True
 
-    db.delete(appointment)
+    appointment.status = AppointmentStatus.CANCELLED
     db.commit()
+    db.refresh(appointment)
 
     return {"message": "Wizyta została anulowana"}
 

@@ -14,7 +14,7 @@ export const appointmentApi = {
     return data;
   },
   deleteAppointment: async (appointment_id: number): Promise<void> => {
-    await apiClient.delete(`/appointments/${appointment_id}`);
+    await apiClient.patch(`/appointments/${appointment_id}`);
   },
   rescheduleAppointment: async (appointment_id: number, availability_id: number): Promise<void> => {
     await apiClient.patch(`/appointments/${appointment_id}/reschedule`, { availability_id });
