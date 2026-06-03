@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { adminApi } from '../api/doctorAppointment';
+import { adminApi } from '../api';
 
 interface Availability {
   id: number;
@@ -127,12 +127,13 @@ const handleDelete = async (availabilityId: number) => {
                     <span className="ml-4 text-sm bg-red-100 text-red-700 px-2 py-1 rounded">Zarezerwowany</span>
                   )}
                 </div>
+                {slot.is_available && (
                 <button 
                   onClick={() => handleDelete(slot.id)}
                   className="text-red-500 hover:text-red-700 font-medium text-sm"
                 >
                   Usuń
-                </button>
+                </button>)}
               </li>
             ))}
           </ul>

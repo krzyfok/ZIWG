@@ -60,6 +60,18 @@ export interface Appointment {
   date: string;
   address?:string;
   status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  specializations: string[];
+}
+
+export interface DoctorAppointmentDetails {
+  id: number;
+  start_time: string;
+  end_time: string;
+  date: string;
+  address?:string;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  patient_name: string;
+  patient_phone: number;
 }
 
 export interface DoctorUpdate {

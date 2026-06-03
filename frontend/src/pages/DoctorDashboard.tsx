@@ -10,7 +10,7 @@ export const DoctorDashboard: React.FC = () => {
         <button 
         
           className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm text-xl font-medium transition-colors"
-          onClick={() => navigate('/manage-appointments')}
+          onClick={() => navigate('/doctor-dashboard/availability')}
         >
           <span>Edytuj grafik</span>
         </button>
@@ -19,14 +19,14 @@ export const DoctorDashboard: React.FC = () => {
       
 
           className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm text-xl font-medium transition-colors"
-          onClick={() => navigate('/edit-profile')}
+          onClick={() => navigate('/doctor-dashboard/edit-profile')}
         >
           Edytuj profil
         </button>
         <button 
         
           className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm text-xl font-medium transition-colors"
-          onClick={() => navigate('/manage-appointments')}
+          onClick={() => navigate('/doctor-dashboard/appointments')}
         >
           <span>Wyświetl wizyty</span>
         </button>
@@ -35,7 +35,7 @@ export const DoctorDashboard: React.FC = () => {
       
 
           className="w-64 h-48 bg-white border-2 border-gray-200 hover:border-blue-400 rounded-lg shadow-sm text-xl font-medium transition-colors"
-          onClick={() => navigate('/edit-profile')}
+          onClick={() => navigate('/doctor-dashboard/edit-profile')}
         >
           Następna wizyta
         </button>

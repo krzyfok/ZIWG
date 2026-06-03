@@ -381,7 +381,10 @@ def get_doctor_appointments(user_id: int, db: Session = Depends(get_db)):
             "start_time": availability.start_time,
             "end_time": availability.end_time,
             "patient_id": patient.id,
-            "patient_username": patient.username, 
+            "patient_name": f"{patient.name} {patient.surname}",
+            "patient_phone": patient.phone, 
+            "patient_address": patient.address,
+
         })
 
     return result
@@ -446,7 +449,7 @@ def create_availability(user_id: int, data: AvailabilityCreate, db: Session = De
     
     return {"message": "Dodano nowy termin", "id": new_slot.id}
 
-@app.delete("/availability/{availability_id}")
+@app.delete("/doctors/me/availability/{availability_id}")
 def delete_availability(availability_id: int, db: Session = Depends(get_db)):
     slot = db.query(Availability).filter(Availability.id == availability_id).first()
     if not slot:

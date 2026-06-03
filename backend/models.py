@@ -97,7 +97,7 @@ class User(Base):
     username = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
     surname = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
+    phone = Column(Integer, nullable=False)
     address = Column(String, nullable=False)
 
     role = Column(String, default="patient", nullable=False)

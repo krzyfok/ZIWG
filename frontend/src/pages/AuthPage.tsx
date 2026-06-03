@@ -100,7 +100,7 @@ export const AuthPage: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Numer telefonu</label>
                 <input 
-                  type="text" 
+                  type="number" 
                   className="border p-2 rounded focus:outline-none focus:border-blue-500" 
                   value={phone}
                   onChange={e => setPhone(e.target.value)}

@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type {Doctor, DoctorUpdate, Availability, AvailabilityCreate } from '../types';
+import type {Doctor, DoctorUpdate, Availability, AvailabilityCreate, DoctorAppointmentDetails} from '../types';
 
 export const adminApi = {
 
@@ -26,7 +26,11 @@ export const adminApi = {
   },
 
   deleteAvailability: async (availabilityId: number): Promise<{ message: string }> => {
-    const { data } = await apiClient.delete<{ message: string }>(`/availability/${availabilityId}`);
+    const { data } = await apiClient.delete<{ message: string }>(`/doctors/me/availability/${availabilityId}`);
+    return data;
+  },
+  getMyAppointments: async (userId: number): Promise<DoctorAppointmentDetails[]> => {
+    const { data } = await apiClient.get<DoctorAppointmentDetails[]>(`/doctors/me/${userId}/appointments`);
     return data;
   }
 };

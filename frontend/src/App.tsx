@@ -8,10 +8,11 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { Navbar } from './components/Navbar';
 import { DoctorDetails } from './pages/DoctorDetail';
-import { DoctorAppointments } from './pages/DoctorAppointments';
+import { BrowseDoctorAppointments } from './pages/BrowseDoctorAppointments';
 import { DoctorDashboard } from './pages/DoctorDashboard';
 import { EditDoctorProfile } from './pages/EditDoctorProfile';
 import {EditDoctorAppointments} from './pages/EditDoctorAppointments';
+import { DoctorAppointments } from './pages/DoctorAppointments';
 function App() {
   return (
     <AuthProvider>
@@ -25,14 +26,15 @@ function App() {
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/find-doctor" element={<FindDoctor />} />
               <Route path="/doctor/:id" element={<DoctorDetails />} />
-              <Route path="/doctor/:id/appointments" element={<DoctorAppointments />} />
+              <Route path="/doctor/:id/appointments" element={<BrowseDoctorAppointments />} />
             </Route>
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['doctor']} />}>
             <Route element={<Layout />}>
               <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-              <Route path="/edit-profile" element={<EditDoctorProfile />} />
-              <Route path="/manage-appointments" element={<EditDoctorAppointments />}/>
+              <Route path="/doctor-dashboard/edit-profile" element={<EditDoctorProfile />} />
+              <Route path="/doctor-dashboard/availability" element={<EditDoctorAppointments />}/>
+              <Route path="/doctor-dashboard/appointments" element={<DoctorAppointments />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
