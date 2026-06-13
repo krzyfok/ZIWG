@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { AppointmentSlot, Appointment } from '../types';
+import type { AppointmentSlot, Appointment, Notification } from '../types';
 
 export const appointmentApi = {
   getAvailableSlots: async(doctor_id:string): Promise<AppointmentSlot[]>=>{
@@ -21,5 +21,12 @@ export const appointmentApi = {
   },
   rateAppointment: async (appointment_id: number, rating: number): Promise<void> => {
     await apiClient.post(`/appointments/${appointment_id}/rate`, { rating });
+  },
+  getNotifications: async (user_id: number): Promise<Notification[]> => {
+    const { data } = await apiClient.get<Notification[]>(`/users/${user_id}/notifications`);
+    return data;
+  },
+  markNotificationRead: async (user_id: number, notification_id: number): Promise<void> => {
+    await apiClient.patch(`/users/${user_id}/notifications/${notification_id}/read`);
   }
 };

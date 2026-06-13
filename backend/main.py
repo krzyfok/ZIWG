@@ -12,6 +12,8 @@ from models import (
     Availability,
     User,
     UserCredential,
+    WaitlistEntry,
+    Notification,
     Appointment,
     AppointmentStatus
 )
@@ -73,6 +75,9 @@ class AppointmentCreate(BaseModel):
 
 class AppointmentReschedule(BaseModel):
     availability_id: int
+
+class WaitlistRequest(BaseModel):
+    user_id: int
 
 class DoctorUpdate(BaseModel):
     first_name: str
@@ -341,6 +346,12 @@ def create_appointment(data: AppointmentCreate, db: Session = Depends(get_db)):
 
     availability.is_available = False
 
+    (db.query(WaitlistEntry)
+        .filter(WaitlistEntry.user_id == data.user_id)
+        .filter(WaitlistEntry.doctor_id == availability.doctor_id)
+        .delete(synchronize_session=False)
+    )
+
     db.add(appointment)
     db.commit()
     db.refresh(appointment)
@@ -414,9 +425,23 @@ def reschedule_appointment(appointment_id: int, data: AppointmentReschedule, db:
     if new_availability.doctor_id != old_availability.doctor_id:
         raise HTTPException(status_code=400, detail="Nowy termin musi należeć do tego samego lekarza")
 
+    doctor = old_availability.doctor
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Nie znaleziono lekarza")
+
     old_availability.is_available = True
     new_availability.is_available = False
     appointment.availability_id = new_availability.id
+
+    db.add(appointment)
+
+    waitlist_entries = db.query(WaitlistEntry).filter(WaitlistEntry.doctor_id == doctor.id).all()
+    for entry in waitlist_entries:
+        notification = Notification(
+            user_id=entry.user_id,
+            message=f"Lekarz {doctor.first_name} {doctor.last_name} ma nowy wolny termin. Sprawdź dostępność.",
+        )
+        db.add(notification)
 
     db.commit()
     db.refresh(appointment)
@@ -475,10 +500,116 @@ def cancel_appointment(appointment_id: int, db: Session = Depends(get_db)):
     availability.is_available = True
 
     appointment.status = AppointmentStatus.CANCELLED
+
+    doctor = availability.doctor
+    if doctor:
+        waitlist_entries = db.query(WaitlistEntry).filter(WaitlistEntry.doctor_id == doctor.id).all()
+        for entry in waitlist_entries:
+            notification = Notification(
+                user_id=entry.user_id,
+                message=f"Lekarz {doctor.first_name} {doctor.last_name} ma nowy wolny termin. Sprawdź dostępność.",
+            )
+            db.add(notification)
+
     db.commit()
     db.refresh(appointment)
 
     return {"message": "Wizyta została anulowana"}
+
+
+@app.post("/doctors/{doctor_id}/waitlist")
+def join_waitlist(doctor_id: int, data: WaitlistRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == data.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Nie znaleziono użytkownika")
+
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Nie znaleziono lekarza")
+
+    existing_entry = (
+        db.query(WaitlistEntry)
+        .filter(WaitlistEntry.user_id == user.id)
+        .filter(WaitlistEntry.doctor_id == doctor.id)
+        .first()
+    )
+
+    if existing_entry:
+        raise HTTPException(status_code=400, detail="Jesteś już na liście rezerwowej tego lekarza")
+
+    entry = WaitlistEntry(user_id=user.id, doctor_id=doctor.id)
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+
+    return {"message": "Zapisano na listę rezerwową"}
+
+
+@app.delete("/doctors/{doctor_id}/waitlist/{user_id}")
+def leave_waitlist(doctor_id: int, user_id: int, db: Session = Depends(get_db)):
+    entry = (
+        db.query(WaitlistEntry)
+        .filter(WaitlistEntry.user_id == user_id)
+        .filter(WaitlistEntry.doctor_id == doctor_id)
+        .first()
+    )
+
+    if not entry:
+        raise HTTPException(status_code=404, detail="Nie znaleziono wpisu na liście rezerwowej")
+
+    db.delete(entry)
+    db.commit()
+
+    return {"message": "Usunięto z listy rezerwowej"}
+
+
+@app.get("/doctors/{doctor_id}/waitlist/{user_id}")
+def waitlist_status(doctor_id: int, user_id: int, db: Session = Depends(get_db)):
+    exists = (
+        db.query(WaitlistEntry)
+        .filter(WaitlistEntry.user_id == user_id)
+        .filter(WaitlistEntry.doctor_id == doctor_id)
+        .first()
+    )
+    return {"subscribed": bool(exists)}
+
+
+@app.get("/users/{user_id}/notifications")
+def get_notifications(user_id: int, db: Session = Depends(get_db)):
+    notifications = (
+        db.query(Notification)
+        .filter(Notification.user_id == user_id)
+        .order_by(Notification.created_at.desc())
+        .all()
+    )
+    return [
+        {
+            "id": notification.id,
+            "message": notification.message,
+            "is_read": notification.is_read,
+            "created_at": notification.created_at,
+        }
+        for notification in notifications
+    ]
+
+
+@app.patch("/users/{user_id}/notifications/{notification_id}/read")
+def mark_notification_read(user_id: int, notification_id: int, db: Session = Depends(get_db)):
+    notification = (
+        db.query(Notification)
+        .filter(Notification.id == notification_id)
+        .filter(Notification.user_id == user_id)
+        .first()
+    )
+
+    if not notification:
+        raise HTTPException(status_code=404, detail="Nie znaleziono powiadomienia")
+
+    notification.is_read = True
+    db.commit()
+    db.refresh(notification)
+
+    return {"message": "Powiadomienie oznaczone jako przeczytane"}
 
 
 @app.get("/doctors/search")

@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum, DateTime, func, Float, CheckConstraint
+from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey, Text, Enum, DateTime, func, Float, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -40,6 +40,11 @@ class Doctor(Base):
 
     availability = relationship(
         "Availability",
+        back_populates="doctor"
+    )
+
+    waitlist_entries = relationship(
+        "WaitlistEntry",
         back_populates="doctor"
     )
 
@@ -123,6 +128,16 @@ class User(Base):
         uselist=False
     )
 
+    waitlist_entries = relationship(
+        "WaitlistEntry",
+        back_populates="user"
+    )
+
+    notifications = relationship(
+        "Notification",
+        back_populates="user"
+    )
+
 
 class UserCredential(Base):
     __tablename__ = "user_credentials"
@@ -132,6 +147,44 @@ class UserCredential(Base):
     salt = Column(String, nullable=False)
 
     user = relationship("User", back_populates="credential")
+
+
+class WaitlistEntry(Base):
+    __tablename__ = "waitlist_entries"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'doctor_id', name='uix_waitlist_user_doctor'),
+    )
+
+    user = relationship(
+        "User",
+        back_populates="waitlist_entries"
+    )
+
+    doctor = relationship(
+        "Doctor",
+        back_populates="waitlist_entries"
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message = Column(String, nullable=False)
+    is_read = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    user = relationship(
+        "User",
+        back_populates="notifications"
+    )
 
 
 class Appointment(Base):

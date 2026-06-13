@@ -52,6 +52,13 @@ export interface AppointmentSlot {
   address?:string;
 }
 
+export interface Notification {
+  id: number;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 export interface Appointment {
   id: number;
   start_time: string;

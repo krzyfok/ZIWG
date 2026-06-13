@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { appointmentApi } from '../api';
+import { appointmentApi, doctorApi } from '../api';
 import type { AppointmentSlot } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,6 +14,9 @@ export const BrowseDoctorAppointments: React.FC = () => {
   const isRescheduling = Boolean(appointmentId);
   const [slots, setSlots] = useState<AppointmentSlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -35,6 +38,45 @@ export const BrowseDoctorAppointments: React.FC = () => {
 
     fetchSlots();
   }, [id]);
+
+  useEffect(() => {
+    const fetchWaitlistStatus = async () => {
+      if (!id || !user || user.role !== 'patient') return;
+
+      try {
+        const result = await doctorApi.getWaitlistStatus(Number(id), user.id);
+        setIsSubscribed(result.subscribed);
+      } catch (error) {
+        console.error('Błąd podczas pobierania statusu listy rezerwowej', error);
+      }
+    };
+
+    fetchWaitlistStatus();
+  }, [id, user]);
+
+  const toggleWaitlistSubscription = async () => {
+    if (!id || !user) return;
+    setWaitlistError(null);
+    setWaitlistLoading(true);
+
+    try {
+      if (isSubscribed) {
+        await doctorApi.leaveWaitlist(Number(id), user.id);
+        setIsSubscribed(false);
+        alert('Wypisano z listy rezerwowej.');
+      } else {
+        await doctorApi.joinWaitlist(Number(id), user.id);
+        setIsSubscribed(true);
+        alert('Zapisano na listę rezerwową.');
+      }
+    } catch (error) {
+      console.error('Błąd podczas aktualizacji listy rezerwowej', error);
+      setWaitlistError('Nie udało się zaktualizować listy rezerwowej. Spróbuj ponownie.');
+      alert('Nie udało się zaktualizować listy rezerwowej. Spróbuj ponownie.');
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
 
   const groupSlotsByDate = (slotsList: AppointmentSlot[]) => {
     return slotsList.reduce((acc, slot) => {
@@ -94,35 +136,69 @@ const handleBooking = async (slotId: number) => {
       </h1>
 
       {dates.length === 0 ? (
-        <p className="text-gray-500">Brak dostępnych terminów w najbliższym czasie.</p>
-      ) : (
-        <div className="space-y-8">
-          {dates.map((date) => (
-            <div key={date}>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">
-                {new Date(date).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {groupedSlots[date]
-                  .sort((a, b) => a.start_time.localeCompare(b.start_time)) 
-                  .map((slot) => {
-                    
-                    const formattedTime = slot.start_time.slice(0, 5); 
-                    
-                    return (
-                      <button
-                        key={slot.id}
-                        onClick={() => isRescheduling ? handleReschedule(slot.id) : handleBooking(slot.id)}
-                        className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
-                      >
-                        {formattedTime}
-                      </button>
-                    );
-                })}
-              </div>
+        <div>
+          <p className="text-gray-500">Brak dostępnych terminów w najbliższym czasie.</p>
+          {user?.role === 'patient' && (
+            <div className="mt-6">
+              <button
+                onClick={toggleWaitlistSubscription}
+                disabled={waitlistLoading}
+                className={`w-full max-w-xs px-5 py-3 rounded text-white ${isSubscribed ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {isSubscribed ? 'Wypisz z listy rezerwowej' : 'Zapisz na listę rezerwową'}
+              </button>
+              {waitlistError && (
+                <div className="text-sm text-red-600 mt-2">{waitlistError}</div>
+              )}
             </div>
-          ))}
+          )}
         </div>
+      ) : (
+        <>
+          <div className="space-y-8">
+            {dates.map((date) => (
+              <div key={date}>
+                <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">
+                  {new Date(date).toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {groupedSlots[date]
+                    .sort((a, b) => a.start_time.localeCompare(b.start_time)) 
+                    .map((slot) => {
+                      const formattedTime = slot.start_time.slice(0, 5);
+                      return (
+                        <button
+                          key={slot.id}
+                          onClick={() => isRescheduling ? handleReschedule(slot.id) : handleBooking(slot.id)}
+                          className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                        >
+                          {formattedTime}
+                        </button>
+                      );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {user?.role === 'patient' && (
+            <div className="mt-8 rounded-lg border border-dashed border-blue-200 bg-blue-50 p-5">
+              <p className="text-sm text-gray-700 mb-3">
+                Zapisz się na listę rezerwową i otrzymaj powiadomienie, gdy pojawi się nowy wolny termin.
+              </p>
+              <button
+                onClick={toggleWaitlistSubscription}
+                disabled={waitlistLoading}
+                className={`px-5 py-3 rounded text-white ${isSubscribed ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {isSubscribed ? 'Wypisz z listy rezerwowej' : 'Zapisz na listę rezerwową'}
+              </button>
+              {waitlistError && (
+                <div className="text-sm text-red-600 mt-2">{waitlistError}</div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

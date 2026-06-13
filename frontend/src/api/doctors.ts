@@ -28,5 +28,14 @@ export const doctorApi = {
     const {data}= await apiClient.get<string[]>(`/cities `);
     return data;
   },
-  
+  joinWaitlist: async (doctorId: number, userId: number): Promise<void> => {
+    await apiClient.post(`/doctors/${doctorId}/waitlist`, { user_id: userId });
+  },
+  leaveWaitlist: async (doctorId: number, userId: number): Promise<void> => {
+    await apiClient.delete(`/doctors/${doctorId}/waitlist/${userId}`);
+  },
+  getWaitlistStatus: async (doctorId: number, userId: number): Promise<{ subscribed: boolean }> => {
+    const { data } = await apiClient.get<{ subscribed: boolean }>(`/doctors/${doctorId}/waitlist/${userId}`);
+    return data;
+  },
 };
