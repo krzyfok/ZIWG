@@ -37,6 +37,9 @@ def get_db():
     finally:
         db.close()
 
+def times_overlap(start1: time, end1: time, start2: time, end2: time) -> bool:
+    return start1 < end2 and start2 < end1
+
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -681,6 +684,30 @@ def create_availability(user_id: int, data: AvailabilityCreate, db: Session = De
     doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
     if not doctor:
         raise HTTPException(status_code=404, detail="Profil lekarza nie istnieje")
+    
+    # Validate time range
+    if data.start_time >= data.end_time:
+        raise HTTPException(
+            status_code=400,
+            detail="Godzina rozpoczęcia musi być wcześniejsza niż godzina zakończenia"
+        )
+    
+    # Check for overlapping slots on the same day
+    existing_slots = (
+        db.query(Availability)
+        .filter(
+            Availability.doctor_id == doctor.id,
+            Availability.date == data.date
+        )
+        .all()
+    )
+    
+    for slot in existing_slots:
+        if times_overlap(data.start_time, data.end_time, slot.start_time, slot.end_time):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Termin koliduje z istniejącym ({slot.start_time.strftime('%H:%M')} - {slot.end_time.strftime('%H:%M')})"
+            )
     
     new_slot = Availability(
         doctor_id=doctor.id,

@@ -18,6 +18,8 @@ export const EditDoctorAppointments: React.FC = () => {
     start_time: '',
     end_time: ''
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
 
 const fetchAvailabilities = async () => {
@@ -41,6 +43,8 @@ useEffect(() => {
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  setError('');
+  setSuccess('');
   
   if (!user?.id) return;
 
@@ -48,10 +52,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     await adminApi.createAvailability(user.id, formData);
 
     setFormData({ date: '', start_time: '', end_time: '' }); 
-    fetchAvailabilities(); 
+    setSuccess('Termin dodany pomyślnie!');
+    fetchAvailabilities();
+    setTimeout(() => setSuccess(''), 3000);
     
-  } catch (error) {
-    console.error("Błąd dodawania terminu", error);
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.detail || 'Błąd dodawania terminu';
+    setError(errorMessage);
   }
 };
 
@@ -59,12 +66,15 @@ const handleDelete = async (availabilityId: number) => {
   if (!window.confirm("Na pewno usunąć ten termin?")) return;
 
   try {
+    setError('');
     await adminApi.deleteAvailability(availabilityId);
+    setSuccess('Termin usunięty pomyślnie!');
+    fetchAvailabilities();
+    setTimeout(() => setSuccess(''), 3000);
     
-    fetchAvailabilities(); 
-    
-  } catch (error) {
-    console.error("Błąd usuwania terminu", error);
+  } catch (error: any) {
+    const errorMessage = error?.response?.data?.detail || 'Błąd usuwania terminu';
+    setError(errorMessage);
   }
 };
 
@@ -73,6 +83,19 @@ const handleDelete = async (availabilityId: number) => {
       
       <div className="bg-white p-6 rounded-lg shadow-md h-fit">
         <h2 className="text-xl font-bold mb-4">Dodaj nowy termin</h2>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded border border-red-300">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded border border-green-300">
+            {success}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm text-gray-600 mb-1">Data</label>
