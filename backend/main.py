@@ -50,6 +50,19 @@ class RegisterRequest(BaseModel):
     address: str
     password: str
 
+class DoctorRegisterRequest(BaseModel):
+    username: str
+    name: str
+    surname: str
+    phone: str
+    address: str
+    password: str
+
+    city: str
+    email: str | None = None
+    description: str | None = None
+    specialization_id: int | None = None
+    specialization_name: str | None = None
 
 class AppointmentCreate(BaseModel):
     user_id: int
@@ -159,6 +172,143 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
 
     return {"id": user.id, "username": user.username, "role": user.role}
+
+@app.post("/register/doctor")
+def register_doctor(data: DoctorRegisterRequest, db: Session = Depends(get_db)):
+    username = data.username.strip()
+    password = data.password
+
+    if not username or not password:
+        raise HTTPException(
+            status_code=400,
+            detail="Nazwa użytkownika i hasło są wymagane"
+        )
+
+    if not data.name.strip():
+        raise HTTPException(status_code=400, detail="Imię jest wymagane")
+
+    if not data.surname.strip():
+        raise HTTPException(status_code=400, detail="Nazwisko jest wymagane")
+
+    if not data.phone.strip():
+        raise HTTPException(status_code=400, detail="Numer telefonu jest wymagany")
+
+    if not data.address.strip():
+        raise HTTPException(status_code=400, detail="Adres jest wymagany")
+
+    if not data.city.strip():
+        raise HTTPException(status_code=400, detail="Miasto jest wymagane")
+
+    existing_user = db.query(User).filter(User.username == username).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Użytkownik o takiej nazwie już istnieje"
+        )
+
+    try:
+        user = User(
+            username=username,
+            name=data.name,
+            surname=data.surname,
+            phone=data.phone,
+            address=data.address,
+            role="doctor"
+        )
+
+        db.add(user)
+        db.flush()
+
+        salt, password_hash = hash_password(password)
+
+        credential = UserCredential(
+            user_id=user.id,
+            salt=salt,
+            password_hash=password_hash
+        )
+
+        db.add(credential)
+
+        doctor = Doctor(
+            user_id=user.id,
+            first_name=data.name,
+            last_name=data.surname,
+            city=data.city,
+            address=data.address,
+            description=data.description,
+            phone=data.phone,
+            email=data.email,
+            is_active=True,
+            average_rating=0.0,
+            reviews_count=0
+        )
+
+        db.add(doctor)
+        db.flush()
+
+        if data.specialization_id:
+            specialization = (
+                db.query(Specialization)
+                .filter(Specialization.id == data.specialization_id)
+                .first()
+            )
+
+            if not specialization:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Nie znaleziono specjalizacji"
+                )
+
+            doctor_specialization = DoctorSpecialization(
+                doctor_id=doctor.id,
+                specialization_id=specialization.id
+            )
+
+            db.add(doctor_specialization)
+
+        elif data.specialization_name and data.specialization_name.strip():
+            specialization_name = data.specialization_name.strip()
+
+            specialization = (
+                db.query(Specialization)
+                .filter(Specialization.name.ilike(specialization_name))
+                .first()
+            )
+
+            if not specialization:
+                specialization = Specialization(name=specialization_name)
+                db.add(specialization)
+                db.flush()
+
+            doctor_specialization = DoctorSpecialization(
+                doctor_id=doctor.id,
+                specialization_id=specialization.id
+            )
+
+            db.add(doctor_specialization)
+
+        db.commit()
+        db.refresh(user)
+        db.refresh(doctor)
+
+        return {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role,
+            "doctor_id": doctor.id
+        }
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Nie udało się zarejestrować lekarza"
+        )
 
 
 @app.post("/appointments")

@@ -1,1 +1,4 @@
-backend/database.db
+.env
+.venv
+database.db
+__pycache__/
